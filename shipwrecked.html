@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shipwrecked</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{--bg:#1b211d;--panel:#232b26;--line:#37423a;--text:#efe9dc;--muted:#a39f8e;--sand:#cdbf9a;--green:#5f8a63;--warn:#c98f5a;--bad:#b9604f;--fire:#d9894a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Newsreader",Georgia,serif;font-size:19px;line-height:1.55;min-height:100vh}
+main{max-width:620px;margin:0 auto;padding:20px 22px 48px}
+.top{display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-size:16px;gap:12px}
+.top .wood{color:var(--sand);font-size:22px;font-weight:600;white-space:nowrap}
+.top .wood small{font-size:14px;color:var(--muted);font-weight:400;margin-right:6px}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14px;color:var(--muted)}
+.g span{display:flex;justify-content:space-between;margin-bottom:4px}
+.bar{height:7px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);transition:width .3s}
+.bar i.hi{background:var(--warn)}.bar i.crit{background:var(--bad)}
+.fire{grid-column:1/-1;font-size:15px;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}.ft{flex:1;min-width:80px}.qb{font:inherit;font-size:15px;line-height:1.25;text-align:left;padding:7px 12px;background:var(--panel);color:var(--sand);border:1px solid var(--line);border-radius:6px;cursor:pointer}.qb:hover{border-color:var(--sand)}.qb small{display:block;color:var(--muted);font-size:12px}.fire b{color:var(--fire);font-weight:600}.fire.out b{color:var(--bad)}
+.story{padding:10px 0 26px;min-height:230px}.locbar{padding-top:16px}.locrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.wx{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px;white-space:nowrap}.drops{display:inline-flex;gap:4px;height:18px;overflow:hidden;align-items:flex-start}.drops i{display:block;width:2px;height:7px;border-radius:2px;background:#7fb0c9;animation:drop .9s linear infinite}.drops i:nth-child(2){animation-delay:.3s;margin-top:5px}.drops i:nth-child(3){animation-delay:.6s}@keyframes drop{0%{transform:translateY(-9px);opacity:0}25%{opacity:1}100%{transform:translateY(19px);opacity:0}}.gust{display:inline-flex;flex-direction:column;gap:3px;width:22px}.gust i{display:block;height:2px;border-radius:2px;background:#9db8a8;width:12px;animation:gust 1.1s ease-in-out infinite}.gust i:nth-child(2){animation-delay:.25s;width:18px}.gust i:nth-child(3){animation-delay:.5s;width:10px}@keyframes gust{0%{transform:translateX(-8px);opacity:0}30%{opacity:1}100%{transform:translateX(10px);opacity:0}}
+.fx{position:relative;display:inline-flex;flex-direction:column;align-items:center;margin-left:auto;padding:0 4px}.flrow{display:flex;align-items:flex-end}.fl{width:15px;height:22px;margin:0 -2px;transform-origin:50% 100%;animation:flick var(--t) ease-in-out infinite alternate;animation-delay:var(--d);transform:scale(var(--s))}
+@keyframes flick{0%{transform:scale(calc(var(--s)*1.04),calc(var(--s)*.9)) skewX(-3deg)}100%{transform:scale(calc(var(--s)*.95),calc(var(--s)*1.08)) skewX(3deg)}}
+.logs{display:block;height:4px;width:100%;min-width:18px;background:#6b4a2f;border-radius:2px;margin-top:-1px}.spk{position:absolute;bottom:26px;width:2px;height:2px;border-radius:50%;background:#f6c453;animation:rise 1.4s linear infinite;animation-delay:var(--d);opacity:0}@keyframes rise{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-24px);opacity:0}}
+.fev{grid-column:1/-1;margin-top:0;font-size:14px;color:var(--warn)}.ic{margin:16px 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}.ic:first-of-type{margin-top:4px}
+.fogi{display:inline-flex;flex-direction:column;gap:2px;margin-right:6px;vertical-align:middle}.fogi i{display:block;width:14px;height:3px;border-radius:2px;background:#9aa6a0;opacity:.75;animation:fdrift 2.4s ease-in-out infinite alternate}.fogi i:nth-child(2){width:10px;animation-delay:-.9s}@keyframes fdrift{from{transform:translateX(-3px)}to{transform:translateX(3px)}}
+.shov{display:flex;align-items:center;justify-content:center;cursor:pointer}.shpn{text-align:center;max-width:340px;width:100%}.shsvg{width:100%;max-width:300px;height:auto}.shpn h2{margin:6px 0 4px}.shpn p{margin:0 0 10px;color:var(--muted)}.shpn small{color:var(--muted)}
+.shp{transform-box:fill-box;transform-origin:50% 100%;animation:shpop .55s cubic-bezier(.2,1.4,.4,1) both;animation-delay:var(--d)}@keyframes shpop{from{opacity:0;transform:translateY(14px) scale(.6)}to{opacity:1;transform:none}}
+.tabs{display:flex;gap:6px;margin:4px 0 0}.tab{flex:1;font:inherit;font-size:15px;padding:9px 6px;background:transparent;color:var(--muted);border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;cursor:pointer}.tab small{opacity:.7}.tab.on{background:var(--panel);color:var(--text,inherit);border-color:var(--muted);font-weight:600}
+.tbox{border:1px solid var(--muted);border-radius:0 0 8px 8px;padding:2px 14px 6px;margin-bottom:14px}.tbox .it:first-child{border-top:0}.empty{color:var(--muted);margin:12px 0}
+.fxi{position:fixed;z-index:9;pointer-events:none;opacity:0;animation:fxup 1.2s ease-out both}@keyframes fxup{0%{opacity:0;transform:translateY(6px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-48px) scale(1.05)}}
+.smk{animation:smk 2.6s ease-in-out infinite}@keyframes smk{0%,100%{transform:translateY(4px);opacity:.4}50%{transform:translateY(-4px);opacity:.9}}.shpn .lid{transform-box:fill-box;transform-origin:0 100%}
+.bo{animation:charge .9s ease-out both;animation-delay:var(--d)}@keyframes charge{0%{opacity:0;transform:translateX(120px)}35%{opacity:1}60%{transform:translateX(-6px) translateY(-4px)}80%{transform:translateX(2px) translateY(2px)}100%{opacity:1;transform:none}}
+.mk{transform-origin:50% 0;animation:mdrop .8s cubic-bezier(.3,1.3,.5,1) both,msway 1.1s ease-in-out .8s infinite alternate;animation-delay:var(--d),calc(var(--d) + .8s)}@keyframes mdrop{from{opacity:0;transform:translateY(-110px)}to{opacity:1;transform:none}}@keyframes msway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.rain line{animation:drip 1.1s linear infinite}@keyframes drip{0%{transform:translateY(-6px);opacity:0}30%{opacity:.85}100%{transform:translateY(14px);opacity:0}}
+.homebtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;background:var(--panel);color:var(--sand);border:1px solid var(--line);border-radius:6px;cursor:pointer}.campsvg{display:block;width:100%;height:auto;margin:4px 0 12px;color:var(--muted)}.cl{font-size:10px;fill:var(--muted)}.campl{margin-top:0}
+.darkscr{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px;z-index:20;text-align:center}.darkscr p{max-width:30ch;font-size:21px;line-height:1.5;color:#cfc7b4;margin:0;animation:dkfade 2.2s ease both}.dkb{display:flex;gap:12px;animation:dkfade 2.2s ease 1.2s both}.dkb button{font:inherit;font-size:16px;color:#cfc7b4;background:transparent;border:1px solid #4a463c;border-radius:6px;padding:10px 20px;cursor:pointer}@keyframes dkfade{from{opacity:0}to{opacity:1}}
+.eyesov{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:30}.eyes{display:flex;gap:40px;filter:drop-shadow(0 0 10px rgba(226,236,60,.75));animation:eyeszoom 3s ease-in both}.eye{position:relative;display:block;width:58px;height:26px;clip-path:path("M0 13Q29-6 58 13Q29 32 0 13Z");background:radial-gradient(ellipse at center,#fffbd2 0,#eef23a 38%,#a3b410 74%,#5c6a00 100%);animation:eyeglow 3s ease-in-out both}.eye:first-child{rotate:9deg}.eye:last-child{rotate:-9deg}.eye::after{content:"";position:absolute;left:50%;top:0;width:7px;height:100%;margin-left:-3.5px;background:#0a0c00;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+@keyframes eyeglow{0%{opacity:0}22%{opacity:1}55%{opacity:1;filter:brightness(1.5);transform:scaleY(1)}62%{transform:scaleY(1)}66%{transform:scaleY(.08)}72%{transform:scaleY(1)}100%{opacity:1;filter:brightness(1.9)}}@keyframes eyeszoom{0%{transform:scale(.6)}60%{transform:scale(1)}100%{transform:scale(2.6)}}
+#app{position:relative;z-index:1}.bgrain{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 1.2s ease}.bgrain.on{opacity:.4}.bgrain i{position:absolute;top:-40px;width:1px;background:linear-gradient(to bottom,rgba(160,195,220,0),rgba(160,195,220,.9));transform:rotate(8deg);animation:bgfall linear infinite}@keyframes bgfall{from{transform:translateY(0) rotate(8deg)}to{transform:translateY(115vh) rotate(8deg)}}
+.coldscr p{color:#b9cddb}.coldscr .l2{animation-delay:2.2s;font-size:25px;color:#e3eff7}
+.sub{margin-top:6px}.subl{font-size:12px;color:var(--muted);margin:4px 0 4px 2px}
+.rays{transform-box:fill-box;transform-origin:center;animation:spin 10s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.tl{display:inline-flex;align-items:center;gap:8px}.ti,.sunico{flex:none}
+.grow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.grow button,.mbox button{font:inherit;font-size:17px;line-height:1.3;text-align:left;padding:10px 14px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;cursor:pointer}.grow button:hover,.mbox button:hover{border-color:var(--sand)}.gb{flex:1 1 150px}.gb small{display:block;color:var(--muted);font-size:13px}.gfull{flex:1 1 100%;min-width:0}.gfull .eatbox{min-width:0}.gfull .eatbox select{min-width:0;width:100%}.mbox{margin:10px 0 0;padding:4px 10px 10px;border:1px solid var(--line);border-radius:6px;min-width:0}.mbox legend{font-size:12px;color:var(--muted);padding:0 6px}.mrow{display:flex;flex-wrap:wrap;gap:8px}.grow .eatbox button,.mbox .eatbox button{width:auto;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.drops i,.gust i,.rays,.fl,.spk,.bgrain,.shp,.fogi i,.smk,.bo,.mk,.rain line,.eyes,.eye,.darkscr p,.dkb{animation:none}.fxi{display:none}.fl{transform:scale(var(--s))}.spk{display:none}}.loc{font-size:24px;font-weight:600;line-height:1.2}.qrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+h1{font-size:30px;line-height:1.2;font-weight:600;margin:0 0 16px;letter-spacing:-.01em}
+.story p{margin:0 0 12px;max-width:52ch}
+.note{color:var(--warn);font-style:italic;font-size:17px}
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions button,.again{font:inherit;font-size:18px;text-align:left;width:100%;padding:13px 16px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.actions button:hover{border-color:var(--sand)}
+.actions button:active{background:#2c372f}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--sand);outline-offset:2px}
+.cost{float:right;color:var(--muted);font-size:14px;margin-left:10px;text-align:right}
+details{margin-top:30px;border-top:1px solid var(--line);padding-top:12px;color:var(--muted);font-size:16px}
+summary{cursor:pointer;list-style:none;padding:4px 0}summary::-webkit-details-marker{display:none}
+.inv{margin:14px 0 6px;color:var(--text)}
+.reset{background:none;border:0;color:var(--muted);font:inherit;font-size:15px;text-decoration:underline;cursor:pointer;padding:8px 0}
+.rt{display:flex;align-items:center;gap:12px}.top{flex-wrap:wrap}.invbtn{font:inherit;font-size:15px;background:var(--panel);color:var(--sand);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer}.menu{display:flex;flex-direction:column;gap:8px}.cat{font:inherit;font-size:18px;text-align:left;width:100%;padding:13px 16px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline}.cat:hover,.cat.on{border-color:var(--sand)}.cat .n{color:var(--muted);font-size:14px}.subs{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px 14px;padding-left:12px;border-left:2px solid var(--line)}.subs button{font:inherit;font-size:17px;text-align:left;width:100%;padding:11px 14px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;cursor:pointer}.subs button:hover{border-color:var(--sand)}.subs .eatbox button{width:auto;white-space:nowrap}
+.ov{position:fixed;inset:0;background:rgba(10,14,11,.88);overflow:auto;padding:calc(24px + env(safe-area-inset-top,0px)) 18px 24px;z-index:5}.pn{background:var(--panel);border:1px solid var(--line);border-radius:8px;max-width:520px;margin:0 auto;padding:18px 20px}.pn h2{margin:0 0 10px;font-size:22px}.it{padding:10px 0;border-top:1px solid var(--line)}.it p{margin:2px 0 0;color:var(--muted);font-size:16px}
+.tbl{width:100%;border-collapse:collapse}.tbl th{width:78px;text-align:left;vertical-align:top;font-weight:400;font-size:14px;color:var(--muted);padding:14px 8px 0 0}.tbl td{padding:8px 0;border-top:1px solid var(--line)}.tbl tr:last-child td,.tbl tr:last-child th{border-bottom:1px solid var(--line)}.chips{display:flex;flex-wrap:wrap;gap:6px}.tbl button{font:inherit;font-size:15px;line-height:1.3;text-align:left;padding:8px 12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;cursor:pointer}.tbl button:hover{border-color:var(--sand)}.tbl .cost{display:block;float:none;margin:2px 0 0;font-size:12px;text-align:left}@media(max-width:480px){.tbl th,.tbl td{display:block;width:auto}.tbl th{padding:10px 0 0;border-top:1px solid var(--line)}.tbl td{border-top:0;padding-top:4px}}
+.eatbox{display:flex;gap:6px;width:100%}.eatbox select{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px}.actions .eatbox button,.tbl .eatbox button{width:auto;white-space:nowrap}.tbl .eatbox{width:auto}
+.it .cbtn{font:inherit;font-size:15px;margin-top:8px;padding:8px 16px;background:var(--green);color:#10150f;border:0;border-radius:6px;cursor:pointer}
+.it.na{opacity:.55}.it p.sp{color:var(--warn);font-size:15px}.tag{font-size:12px;color:var(--warn);font-weight:400;margin-left:8px}
+.dead h1{color:var(--bad)}.won h1{color:var(--sand)}
+@media(max-width:480px){body{font-size:18px}h1{font-size:26px}.cost{display:block;float:none;margin:0;text-align:left}}
+#intro{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 7vh) 16px calc(env(safe-area-inset-bottom,0px) + 6vh);background:linear-gradient(#0a0f14 0%,#16222b 55%,#1d2f3a 100%);cursor:pointer;overflow:hidden;transition:opacity .7s ease;-webkit-tap-highlight-color:transparent;user-select:none}
+#intro.out{opacity:0;pointer-events:none}
+#intro .rain{position:absolute;inset:-20% -20%;background:repeating-linear-gradient(105deg,transparent 0 16px,rgba(190,210,230,.28) 16px 17px);animation:inrain .45s linear infinite;pointer-events:none}
+#intro .rain.b{background:repeating-linear-gradient(105deg,transparent 0 31px,rgba(190,210,230,.16) 31px 32px);animation-duration:.7s}
+@keyframes inrain{to{transform:translate(-36px,100px)}}
+#intro .flash{position:absolute;inset:0;background:#dbe8ff;opacity:0;animation:inflash 9s infinite;pointer-events:none}
+@keyframes inflash{0%,27%{opacity:0}28%{opacity:.55}29%{opacity:.05}30.5%{opacity:.4}33%,58%{opacity:0}59%{opacity:.35}60.5%,100%{opacity:0}}
+#intro .ttl{position:relative;text-align:center;line-height:1.05}
+#intro .ttl b{display:block;font-size:clamp(34px,10.5vw,64px);letter-spacing:.14em;color:var(--sand);font-weight:700;text-shadow:0 2px 18px rgba(0,0,0,.7)}
+#intro .ttl i{display:block;margin-top:8px;font-size:clamp(22px,6.5vw,36px);color:var(--text);font-style:italic;letter-spacing:.08em;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+#intro svg{position:relative;width:min(100%,560px);height:auto;flex:0 1 auto}
+#intro .tap{position:relative;color:var(--muted);font-size:18px;letter-spacing:.12em;animation:intap 2s ease-in-out infinite}
+@keyframes intap{0%,100%{opacity:.35}50%{opacity:1}}
+#intro .by{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);color:var(--muted);font-size:14px;letter-spacing:.08em;font-style:italic;opacity:.8;pointer-events:none}
+#intro .waveA{animation:inwv 4s linear infinite}
+#intro .waveB{animation:inwv 2.6s linear infinite reverse}
+@keyframes inwv{to{transform:translateX(-80px)}}
+#intro .sea{animation:inbob 3s ease-in-out infinite}
+@keyframes inbob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+#intro .rock{transform-origin:200px 190px;animation:inrock 3s ease-in-out infinite}
+@keyframes inrock{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+#intro .hl,#intro .hr{transform-origin:200px 185px;transform-box:view-box;opacity:0}
+#intro .hl{animation:inhl 9s ease-in infinite}
+#intro .hr{animation:inhr 9s ease-in infinite}
+@keyframes inhl{0%{opacity:0;transform:none}4%{opacity:1}30%{transform:none}46%{transform:translate(-14px,6px) rotate(-16deg)}84%{opacity:1;transform:translate(-34px,72px) rotate(-42deg)}93%,100%{opacity:0;transform:translate(-40px,90px) rotate(-48deg)}}
+@keyframes inhr{0%{opacity:0;transform:none}4%{opacity:1}30%{transform:none}46%{transform:translate(14px,6px) rotate(19deg)}84%{opacity:1;transform:translate(36px,66px) rotate(46deg)}93%,100%{opacity:0;transform:translate(42px,84px) rotate(52deg)}}
+#intro .bolt{opacity:0;animation:inbolt 9s infinite}
+@keyframes inbolt{0%,27%{opacity:0}28%,31%{opacity:1}33%,58%{opacity:0}59%,61%{opacity:1}62%,100%{opacity:0}}
+#intro .crack{opacity:0;animation:incrack 9s infinite}
+@keyframes incrack{0%,28%{opacity:0;transform:scale(.4)}32%{opacity:1;transform:scale(1.2)}48%,100%{opacity:0;transform:scale(1.6)}}
+#intro .crack{transform-origin:200px 178px;transform-box:view-box}
+#intro .spl{opacity:0;animation:inspl 9s infinite;transform-origin:200px 215px;transform-box:view-box}
+@keyframes inspl{0%,50%{opacity:0;transform:scale(.3)}62%{opacity:.8;transform:scale(1)}85%,100%{opacity:0;transform:scale(1.5)}}
+.loc{display:flex;align-items:center;gap:10px}.loc .lic{width:38px;height:30px;flex:none;border-radius:7px;border:1px solid var(--line);display:block}
+.locrow{align-items:center}
+.story{position:sticky;top:0;z-index:3;background:var(--bg);max-height:46vh;overflow-y:auto;min-height:0;padding:12px 0 14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+</style>
+</head>
+<body>
+<div id="bgrain" class="bgrain" aria-hidden="true"><i style="left:41%;height:16px;animation-duration:1.18s;animation-delay:-0.08s"></i><i style="left:68%;height:15px;animation-duration:1.16s;animation-delay:-0.09s"></i><i style="left:64%;height:17px;animation-duration:0.93s;animation-delay:-0.69s"></i><i style="left:8%;height:17px;animation-duration:0.96s;animation-delay:-0.68s"></i><i style="left:72%;height:15px;animation-duration:1.56s;animation-delay:-1.01s"></i><i style="left:74%;height:14px;animation-duration:1.30s;animation-delay:-0.63s"></i><i style="left:28%;height:14px;animation-duration:1.29s;animation-delay:-0.21s"></i><i style="left:53%;height:16px;animation-duration:1.28s;animation-delay:-0.91s"></i><i style="left:71%;height:27px;animation-duration:1.38s;animation-delay:-0.16s"></i><i style="left:73%;height:24px;animation-duration:1.03s;animation-delay:-0.16s"></i><i style="left:91%;height:15px;animation-duration:1.30s;animation-delay:-0.99s"></i><i style="left:63%;height:24px;animation-duration:1.27s;animation-delay:-1.24s"></i><i style="left:59%;height:23px;animation-duration:1.55s;animation-delay:-0.58s"></i><i style="left:31%;height:26px;animation-duration:1.03s;animation-delay:-1.25s"></i><i style="left:10%;height:23px;animation-duration:1.11s;animation-delay:-0.79s"></i><i style="left:43%;height:25px;animation-duration:1.21s;animation-delay:-0.97s"></i><i style="left:9%;height:15px;animation-duration:1.26s;animation-delay:-0.26s"></i><i style="left:43%;height:16px;animation-duration:1.55s;animation-delay:-0.67s"></i><i style="left:85%;height:15px;animation-duration:1.44s;animation-delay:-0.92s"></i><i style="left:40%;height:19px;animation-duration:1.39s;animation-delay:-0.95s"></i><i style="left:74%;height:26px;animation-duration:1.22s;animation-delay:-1.34s"></i><i style="left:34%;height:21px;animation-duration:1.39s;animation-delay:-0.10s"></i><i style="left:93%;height:25px;animation-duration:1.12s;animation-delay:-0.92s"></i><i style="left:87%;height:27px;animation-duration:1.21s;animation-delay:-1.15s"></i><i style="left:85%;height:19px;animation-duration:0.92s;animation-delay:-0.74s"></i><i style="left:21%;height:23px;animation-duration:0.98s;animation-delay:-0.09s"></i><i style="left:98%;height:18px;animation-duration:0.99s;animation-delay:-0.40s"></i><i style="left:50%;height:28px;animation-duration:1.51s;animation-delay:-0.13s"></i><i style="left:57%;height:20px;animation-duration:1.28s;animation-delay:-1.41s"></i><i style="left:55%;height:27px;animation-duration:1.29s;animation-delay:-1.13s"></i><i style="left:45%;height:24px;animation-duration:1.52s;animation-delay:-1.53s"></i><i style="left:19%;height:15px;animation-duration:1.02s;animation-delay:-0.37s"></i><i style="left:29%;height:14px;animation-duration:1.24s;animation-delay:-0.94s"></i><i style="left:33%;height:18px;animation-duration:0.90s;animation-delay:-0.67s"></i><i style="left:47%;height:23px;animation-duration:1.30s;animation-delay:-1.52s"></i><i style="left:88%;height:27px;animation-duration:1.26s;animation-delay:-0.99s"></i><i style="left:86%;height:25px;animation-duration:0.94s;animation-delay:-1.44s"></i><i style="left:99%;height:27px;animation-duration:1.38s;animation-delay:-0.89s"></i><i style="left:50%;height:20px;animation-duration:1.18s;animation-delay:-0.77s"></i><i style="left:51%;height:14px;animation-duration:1.03s;animation-delay:-1.58s"></i><i style="left:56%;height:16px;animation-duration:0.98s;animation-delay:-0.96s"></i><i style="left:13%;height:14px;animation-duration:1.30s;animation-delay:-0.86s"></i><i style="left:46%;height:23px;animation-duration:0.92s;animation-delay:-1.40s"></i><i style="left:78%;height:20px;animation-duration:1.00s;animation-delay:-0.40s"></i><i style="left:44%;height:23px;animation-duration:1.15s;animation-delay:-0.20s"></i><i style="left:62%;height:21px;animation-duration:1.24s;animation-delay:-0.50s"></i></div>
+<div id="intro" role="button" aria-label="Tap anywhere to start">
+<div class="rain"></div><div class="rain b"></div><div class="flash"></div>
+<div class="ttl"><b>CASTAWAY:</b><i>Shipwrecked</i></div>
+<svg viewBox="0 0 400 300" aria-hidden="true">
+ <g fill="#0d141a" opacity=".85"><ellipse cx="70" cy="40" rx="90" ry="26"/><ellipse cx="190" cy="28" rx="110" ry="24"/><ellipse cx="320" cy="44" rx="100" ry="28"/><ellipse cx="260" cy="70" rx="80" ry="16"/><ellipse cx="110" cy="78" rx="70" ry="14"/></g>
+ <polyline class="bolt" points="250,50 232,100 248,100 222,160" fill="none" stroke="#eaf2ff" stroke-width="3" stroke-linejoin="round"/>
+ <rect x="0" y="190" width="400" height="110" fill="#10202a"/>
+ <g class="sea"><g class="waveB"><path d="M-80 200 q20-14 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V300 H-80Z" fill="#17303d"/></g></g>
+ <g class="rock">
+  <g class="hl">
+   <polygon points="100,148 200,160 200,196 134,196" fill="#6b4a2f"/>
+   <polygon points="100,148 200,160 200,166 104,155" fill="#8a6440"/>
+   <line x1="150" y1="158" x2="150" y2="96" stroke="#3a2a1c" stroke-width="4"/>
+   <polygon points="152,100 152,150 194,152" fill="#d8cfb8" opacity=".9"/>
+   <rect x="168" y="144" width="22" height="14" fill="#4a3322"/>
+  </g>
+  <g class="hr">
+   <polygon points="200,160 304,150 292,196 200,196" fill="#6b4a2f"/>
+   <polygon points="200,160 304,150 303,157 200,166" fill="#8a6440"/>
+   <line x1="256" y1="154" x2="256" y2="104" stroke="#3a2a1c" stroke-width="4"/>
+   <polygon points="254,108 254,148 236,150 246,128" fill="#d8cfb8" opacity=".85"/>
+   <rect x="212" y="142" width="24" height="16" fill="#4a3322"/>
+  </g>
+  <g class="crack"><polyline points="200,150 195,166 205,176 196,192 202,204" fill="none" stroke="#f2f6ff" stroke-width="3" stroke-linejoin="round"/><circle cx="200" cy="178" r="14" fill="#dbe8ff" opacity=".35"/></g>
+ </g>
+ <g class="spl" fill="none" stroke="#c9d9e6" stroke-width="2"><path d="M150 214 q10-22 20 0 M185 212 q10-28 20 0 M225 214 q10-24 20 0"/></g>
+ <g class="waveA"><path d="M-80 214 q20-18 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V300 H-80Z" fill="#1e3d4d" opacity=".95"/></g>
+ <rect x="0" y="236" width="400" height="64" fill="#0b161d" opacity=".8"/>
+</svg>
+<div class="tap">Tap anywhere to start</div>
+<div class="by">by Aenyzyz</div>
+</div>
+<main id="app"></main>
+<script>
+const KEY="shipwrecked-v2",GOAL=25,START=480;
+const FOOD={ // h = hunger removed, t = thirst removed
+ banana:{h:12,f:5,l:"Eat a banana",m:"Soft, sweet and filling."},mango:{h:17,f:5,l:"Eat a mango",m:"Juice runs down your wrist. It is the best thing you have eaten in days."},
+ guava:{h:9,f:5,l:"Eat a guava",m:"Tart and gritty with seeds, but it helps."},nuts:{h:8,f:3,l:"Eat nuts",m:"You crack the shells between two stones. Rich and oily."},
+ coconut:{h:6,t:30,l:"Crack open a coconut",m:"You split it on a rock and drink the cool water, then scrape out the meat."},
+ berries:{h:8,l:"Eat berries",m:"Sweet-tart. Your fingers stain purple."},
+ mushroom:{h:11,risk:.4,dmg:25,l:"Eat the mushroom",m:"Earthy and chewy. It seems to sit fine."},
+ bcrab:{h:23,l:"Eat boiled crab",m:"Sweet, hot crab meat. A real meal."},bmussel:{h:14,l:"Eat boiled mussels",m:"Salty and tender. They fill a small hole."},
+ snake:{h:6,l:"Eat raw snake meat",m:"Gamey and tough, but it is food."},game:{h:14,l:"Eat raw game meat",m:"You eat slowly. The hollow feeling finally eases."},
+ cfish:{h:19,l:"Eat cooked fish",m:"Flaky and hot, with a crisp skin."},ccrayfish:{h:12,l:"Eat cooked crayfish",m:"Sweet, tender tail meat. Worth the cracking."},smokedmeat:{h:17,l:"Eat smoked meat",m:"Dark, salty and chewy. It keeps you going."},smokedfish:{h:9,l:"Eat smoked fish",m:"Dry and smoky. Not pretty, but it fills you."},
+ cgame:{h:26,l:"Eat cooked meat",m:"Hot, juicy and salty with ash. The best meal you have had."},csnake:{h:17,l:"Eat cooked snake",m:"Firm and mild, almost like chicken."},cmushroom:{h:14,l:"Eat cooked mushroom",m:"Earthy and safe. Cooking was the right call."},
+ rations:{h:34,l:"Eat tinned rations",m:"You pry the tin open. Salty, oily and wonderful."},
+ watercress:{h:6,l:"Eat watercress",m:"Peppery and fresh. Cold from the lake."}};
+const LIFE={game:1440,snake:1440,crab:1440,mussel:1440,fmussel:1440,fish:1440,crayfish:1440,ccrayfish:1440,cgame:1440,csnake:1440,cfish:1440,bcrab:1440,bmussel:1440,smokedmeat:4320,smokedfish:4320}; // minutes before spoiling
+const PER=Object.keys(LIFE);
+const SHELTER=[null,{wood:8},{wood:10},{wood:12,rope:1},{wood:14,rope:1,reeds:2},{wood:16,rope:2,reeds:3}];
+const SHN=["","Build a shelter","Upgrade shelter to level 2","Upgrade shelter to level 3","Elevate the shelter (level 4)","Reinforce the elevated shelter (level 5)"];
+const SHM=["","You prop branches against a fallen trunk and weave a roof of leaves. It will keep the wind off.","You reinforce the walls and thicken the roof.","You rebuild the roof wide enough to keep the fire indoors. Rain can't touch it now.","You raise the floor on stilts. Floods and wandering animals can no longer reach your camp.","You brace the stilts with crossbeams and wall the shelter in. Nothing is getting in."];
+const SHD=["","A basic shelter. Keeps the wind off.","Sturdier walls and a thicker roof.","The fire can be kept indoors, protected from rain.","Raised on stilts. Protects from flooding and wandering animals.","Fully reinforced. The strongest shelter."];
+const NAME={wood:"Wood",rope:"Rope",vine:"Vine",stick:"Stick",stone:"Sharp stone",bottle:"Empty bottle",water:"Safe water",spot:"Small clay pot",bpot:"Big clay pot",rawwater:"Lake water (unboiled)",banana:"Banana",mango:"Mango",guava:"Guava",nuts:"Nuts",coconut:"Coconut",snake:"Snake meat",game:"Game meat",trap:"Trap",spear:"Spear",bow:"Bow drill",torch:"Torch",crab:"Raw crab",mussel:"Mussels",fmussel:"Freshwater mussels",bcrab:"Boiled crab",bmussel:"Boiled mussels",flint:"Flintstone",metal:"Piece of metal",firestarter:"Flint and steel",pot:"Pot",berries:"Wild berries",mushroom:"Unknown mushroom",timber:"Timber",sailcloth:"Sailcloth",aloe:"Aloe leaf",bandage:"Bandage",fish:"Raw fish",cfish:"Cooked fish",crayfish:"Crayfish",ccrayfish:"Cooked crayfish",smokedmeat:"Smoked meat",smokedfish:"Smoked fish",ftrap:"Fish trap",cgame:"Cooked meat",csnake:"Cooked snake meat",cmushroom:"Cooked mushroom",watercress:"Watercress",reeds:"Reeds",clay:"River clay",herbs:"Healing herbs",rattle:"Alarm rattle",salve:"Herbal salve",tarp:"Reed tarp",axe:"Axe",saw:"Saw",hammer:"Hammer",pistol:"Pistol",ammo:"Pistol rounds",hbow:"Hunting bow",brokenaxe:"Broken axe head",brokensaw:"Cracked saw blade",brokenhammer:"Loose hammer head",brokenbow:"Warped bow limb",magnifier:"Magnifying glass",lens:"Glass lens",tinder:"Tinder",rations:"Tinned rations"};
+const DESC={spot:"A small clay pot for cooking. Lets you boil water and shellfish over a fire. It cracks after 10 uses. It cannot store water.",bpot:"A big clay pot. Stores up to 8 bottles of clean, boiled water at camp.",rawwater:"Water from the lake or river. It looks clear but it is not safe. Boil it in a pot over a fire first.",wood:"Fuel for fires and material for shelters. Wet wood only counts as a quarter of a dry piece.",rope:"Strong cord. Used for the bow drill and shelter upgrades.",vine:"Flexible and tough. Binds spears, traps and lean-tos.",stick:"Straight and sturdy. Good for spears and traps, or for hooking and scaring animals.",stone:"A flint-sharp edge. Binds to a stick to make a spear.",bottle:"An empty container that can carry fresh water.",water:"Safe water: boiled, or collected rain. Drink it anywhere.",banana:"Ripe and sweet. Reduces hunger by 12 and fatigue by 5.",mango:"Juicy and filling. Reduces hunger by 17 and fatigue by 5.",guava:"Tart tropical fruit. Reduces hunger by 9 and fatigue by 5.",nuts:"Forest nuts. Reduces hunger by 8 and fatigue by 3.",coconut:"Reduces thirst by 30 and hunger by 6.",snake:"Tough, gamey meat. Raw it gives 6 hunger. Cook it for more. Spoils 1 day after you get it.",game:"Fresh meat from a trap or a kill. Raw it gives 14 hunger. Cook it for more, or smoke it to keep it. Spoils 1 day after you get it.",trap:"A snare trap. Place it at camp and check it later for game.",spear:"A stone-tipped spear. Repels or kills dangerous animals. It breaks after repelling a wild boar. You can carry up to 3.",bow:"A bow drill. Needed to start a fire.",torch:"A burning brand for going out after dark. It burns out after one trip, and the night outside is still dangerous.",crab:"Must be boiled in a pot over a fire before eating.",mussel:"Must be boiled in a pot over a fire before eating.",fmussel:"Freshwater shellfish. Must be boiled before eating.",bcrab:"Boiled crab. Reduces hunger by 23. Spoils 1 day after you get it.",bmussel:"Boiled mussels. Reduces hunger by 14. Spoils 1 day after you get it.",flint:"Strikes sparks. Starts a fire on its own (poorly), or craft it with metal into a firestarter.",metal:"A scrap of ship hull. Craft with flint to make a firestarter.",firestarter:"Flint and steel. Higher chance than a bow drill. Never runs out.",pot:"A battered cooking pot. Lets you boil water and shellfish over a fire, but it falls apart after 5 uses.",berries:"Edible wild berries. Reduces hunger by 8.",mushroom:"Unknown species. Raw it gives 11 hunger but may be poisonous. Cook it to make it safe.",timber:"Dry, dense wood. Using one when starting a fire adds 5% to the chance it catches.",sailcloth:"Torn sailcloth. Craft with aloe into a bandage.",aloe:"A soothing leaf. Craft with sailcloth into a bandage.",bandage:"Heals 30 health when used.",fish:"Fresh fish. Cook it for a full meal, or smoke it to keep it. Spoils 1 day after you get it.",crayfish:"Freshwater crayfish. Cook it for a meal. Spoils 1 day after you get it.",ccrayfish:"Cooked crayfish. Reduces hunger by 12. Spoils 1 day after you get it.",cfish:"Roasted fish. Reduces hunger by 19. Spoils 1 day after you get it.",smokedmeat:"Smoked on the rack. Reduces hunger by 17. Spoils 3 days after you get it.",smokedfish:"Smoked on the rack. Reduces hunger by 9. Spoils 3 days after you get it.",ftrap:"A woven trap. Set it in the lake and check it later for fish.",cgame:"Cooked meat. Reduces hunger by 26. Spoils 1 day after you get it.",csnake:"Cooked snake. Reduces hunger by 17. Spoils 1 day after you get it.",cmushroom:"Cooked, so it is safe. Reduces hunger by 14.",watercress:"Fresh greens from the water. Reduces hunger by 6.",reeds:"Tough lakeside reeds. Needed to thatch and elevate your shelter.",clay:"River clay. Craft 3 into a pot.",herbs:"Bitter healing leaves. Use them to heal 15 health.",rattle:"Sticks and stones lashed together. Shake it to scare off animals. Used up in an emergency. Against monkeys it is not used up, but each use makes it 10% less likely to scare them.",salve:"Crushed herbs in water. Treats venom and fever. Heal value 30. Used up in an emergency.",tarp:"Woven reeds. Covers your camp in a storm or keeps gear dry in a flood. Used up in an emergency.",axe:"Cuts through fallen trees and adds 1 wood to every wood gathering.",saw:"Cuts the wood needed for shelter building by a quarter.",hammer:"Shelter building takes 60 minutes instead of 90.",pistol:"A small pistol. Fire it in an emergency to drive off or kill an animal. Uses one round per shot.",ammo:"Rounds for the pistol.",hbow:"A hunting bow. Counts as a weapon in emergencies and lets you hunt game.",brokenaxe:"A rusted axe head with no handle. Repair it with a stick and 2 vines.",brokensaw:"A saw blade, cracked but usable. Repair it with a stick and a rope.",brokenhammer:"A hammer head with no handle. Repair it with a stick and a vine.",brokenbow:"A limb of a good bow. Repair it with 2 vines and a rope.",lens:"A piece of curved glass. Helpful for starting a fire when the sun is up.",magnifier:"Focuses sunlight to light a fire (80% base chance). Only works in clear daylight, not in rain or at night.",tinder:"Dry fibres and bark shavings. Each fire attempt uses one and adds 25% to the chance.",rations:"A sealed tin from a lost ship. Reduces hunger by 34. Never spoils."};
+function mkSched(from){
+  const SC=[5,10,15,20,23],days=[];
+  for(let d=Math.max(6,from);d<=24;d++)if(!SC.includes(d))days.push(d);
+  const n=Math.min(4,days.length),ch=[];
+  for(let a=0;a<400&&ch.length<n;a++){const d=days[Math.floor(Math.random()*days.length)];if(ch.includes(d))continue;if(a<300&&ch.some(x=>Math.abs(x-d)<2))continue;ch.push(d)}
+  ch.sort((a,b)=>a-b);
+  const ids=["jackals","flood","spider","brushfire"].sort(()=>Math.random()-.5);
+  return ch.map((d,i)=>({id:ids[i],day:d,h:9+Math.floor(Math.random()*9)}));
+}
+const fresh=()=>({t:START,loc:"beach",inv:{wood:0,wet:0,rope:0,vine:0,stick:0,stone:0,bottle:0,water:0,rawwater:0,spot:0,bpot:0,food:0,nuts:0,banana:0,mango:0,guava:0,coconut:0,crab:0,mussel:0,fmussel:0,bcrab:0,bmussel:0,flint:0,metal:0,firestarter:0,pot:0,berries:0,mushroom:0,timber:0,sailcloth:0,aloe:0,bandage:0,snake:0,game:0,trap:0,spear:0,bow:0,torch:0,fish:0,cfish:0,smokedmeat:0,smokedfish:0,ftrap:0,cgame:0,csnake:0,cmushroom:0,watercress:0,reeds:0,clay:0,herbs:0,rattle:0,salve:0,tarp:0,axe:0,saw:0,hammer:0,pistol:0,ammo:0,hbow:0,brokenaxe:0,brokensaw:0,brokenhammer:0,brokenbow:0,magnifier:0,lens:0,crayfish:0,ccrayfish:0,tinder:0,rations:0},
+ sh:0,lean:false,fl:0,gTaps:0,fTaps:0,sTaps:0,fireEnd:0,looks:0,placed:[],fplaced:[],ring:false,rack:false,catcher:false,catch:0,dryN:0,dryAcc:0,rs:mkSched(1),wx:null,wxDay:-1,pend:null,lastDaily:null,dog:0,fp:0,hermit:0,hAcc:0,supply:0,drift:0,berries:0,tree:false,cave:false,caveHint:false,river:false,riverHint:false,stash:false,stashHits:0,rainEarly:[Math.random()<.5,Math.random()<.3,Math.random()<.2,Math.random()<.1],rainEarlyH:[0,0,0,0].map(()=>9+Math.floor(Math.random()*6)),potUses:0,spotUses:0,ratDue:false,rattleUse:0,noMove:0,fence:0,stored:0,windD:2+Math.floor(Math.random()*2),windH:10+Math.floor(Math.random()*6),fever:false,injHi:false,rainOn:false,injured:false,injRest:0,exhaust:0,cold:0,bat:{},done:{},ev:null,health:100,hunger:20,thirst:20,fatigue:10,
+ title:"You are shipwrecked on an unknown island",
+ text:"Waves wash over the shore. Wreckage lies scattered across the sand, and a dense forest stretches inland. Survive 25 days until rescue comes. Find supplies before nightfall.",dead:null,won:false});
+let S=load(),confirmReset=false,invOpen=false,craftOpen=false,openCat=null,shAnim=0,shTimer=null,darkDeath=false,homeOpen=false,invTab="Food",fxK=null,shN=0,boarSeen="";
+function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r){const f=Object.assign(fresh(),r);f.inv=Object.assign(fresh().inv,r.inv);f.inv.banana+=f.inv.food||0;f.inv.food=0;if(!r.rs)f.rs=mkSched(Math.floor(f.t/1440)+1);return f}}catch(e){}return fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const v=()=>S.inv,clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x)),pick=a=>a[Math.floor(Math.random()*a.length)];
+const hour=(t=S.t)=>Math.floor((t%1440)/60),day=()=>Math.floor(S.t/1440)+1,isNight=(t=S.t)=>hour(t)>=20||hour(t)<5;
+const fireLit=()=>S.fireEnd>S.t,fireLvl=()=>{const r=S.fireEnd-S.t;return r<=0?0:Math.min(8,r<=25?1:1+Math.ceil((r-25)/90))},prot=()=>S.lean||S.sh>=3||S.ring,ew=()=>v().wood+v().wet*.25;
+function raining(t=S.t){const d=Math.floor(t/1440),h=hour(t);if(S.wx==="rain"&&d===S.wxDay)return h>=6&&h<21;if(d<4){const pl=S.rainEarly,st=S.rainEarlyH;return !!(pl&&st&&pl[d])&&h>=st[d]&&h<st[d]+4}if(d===0)return false;if(d===14)return h>=15;if((d*37+11)%10>=3)return false;const s=9+(d*5)%8;return h>=s&&h<s+4}
+const dawnT=()=>S.t-(S.t%1440)+360+(hour()>=6?1440:0),gMin=()=>[30,26,22,18,15][gLvl()-1],fMin=L=>(L==="camp"?[40,30,22,15,10]:[30,22,16,12,10])[fLvl()-1];
+const FN=["","Tinder Spark","Kindling Flame","Small Campfire","Cooking Fire","Roaring Campfire","Bonfire","Towering Bonfire","Raging Fire"];
+const TOOLK=["spot","bpot","bottle","trap","ftrap","spear","bow","torch","firestarter","pot","magnifier","lens","axe","saw","hammer","pistol","hbow","bandage","salve","rattle","tarp","brokenaxe","brokensaw","brokenhammer","brokenbow"];
+const catOf=k=>TOOLK.includes(k)?"Tools":(FOOD[k]||["water","rawwater","fish","crayfish","crab","mussel","fmussel"].includes(k))?"Food":"Materials";
+const NOC=["bow","firestarter","pot","magnifier","axe","saw","hammer","pistol","hbow"];
+let HG={w:0,items:{}};
+const NEWS=[],GY=[[1,3],[1,5],[2,5],[2,6],[3,6]],GT=[0,5,10,30,70],FY=[[1,1],[1,2],[1,3],[2,3],[2,4]],FT=[0,5,15,30,50],ST=[0,6,15,20,40],lvlOf=(t,T)=>T.filter(x=>t>=x).length,sLvl=()=>lvlOf(S.sTaps||0,ST),gLvl=()=>lvlOf(S.gTaps,GT),fLvl=()=>lvlOf(S.fTaps,FT);
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+function phase(){const h=hour();return h>=20||h<5?"Night":h<8?"Dawn":h<12?"Morning":h<17?"Afternoon":"Evening"}
+function clk(t){const h=hour(t),m=t%60;return((h+11)%12+1)+":"+String(m).padStart(2,"0")+(h<12?" AM":" PM")}
+function clock(){return clk(S.t)}
+const hm=m=>Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";
+function can(c){for(const k in c){if(k==="wood"){if(ew()<c.wood)return false}else if((v()[k]||0)<c[k])return false}return true}
+function take(c){for(const k in c){if(k==="wood"){const n=c.wood,u=Math.min(v().wood,n);v().wood-=u;v().wet-=(n-u)*4}else v()[k]-=c[k]}}
+const needStr=c=>Object.keys(c).map(k=>{const h=k==="wood"?Math.floor(ew()):(v()[k]||0);return c[k]+" "+(NAME[k]||k).toLowerCase()+" ("+h+" held)"}).join(", ");
+const costStr=c=>Object.keys(c).map(k=>c[k]+" "+(NAME[k]||k).toLowerCase()).join(", ");
+const die=(msg,plain,kind)=>{S.dead={msg,plain:!!plain,kind}};
+const BEAST="A beast has pounced on you. You died.";
+
+const wxOn=k=>S.wx===k&&Math.floor(S.t/1440)===S.wxDay;
+const wxLabel=()=>{const m={fog:"Thick fog",rain:"Heavy rain",wind:"Strong winds",calm:"Calm weather",heat:"Heat wave",cold:"Extreme cold"};return Math.floor(S.t/1440)===S.wxDay&&m[S.wx]||""};
+const sunSvg=spin=>'<svg class="'+(spin?"sunico":"ti")+'" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g class="'+(spin?"rays":"")+'" stroke="#e0b25a" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g><circle cx="12" cy="12" r="4.5" fill="#e0b25a"/></svg>';
+const moonSvg='<svg class="ti" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="#cdbf9a"/></svg>';
+function wxBadge(){const dayT=hour()>=6&&hour()<17,lab=wxLabel();
+  if(raining())return{l:lab||"Rain",a:"rain"};
+  if(wxOn("fog"))return{l:lab,a:"fog"};
+  if(wxOn("wind"))return{l:lab,a:"wind"};
+  if(wxOn("heat"))return{l:lab,a:dayT?"sun":""};
+  if(wxOn("calm"))return{l:dayT?"Sunny and calm":"Calm night",a:dayT?"sun":""};
+  if(wxOn("cold"))return{l:lab,a:""};
+  return dayT?{l:"Sunny",a:"sun"}:{l:"",a:""}}
+const FLM=[null,[.5],[.7],[.9,.5],[1,.65,.65],[1.1,.8,.8],[1.25,.9,.9,.6],[1.35,1.05,1.05,.75,.75],[1.5,1.15,1.15,.9,.9,.65]];
+const BT={monkey:["Monkeys attack!","They are after your food!"],cpot:[()=>shN===2?"Big clay pot made":"Small clay pot made",()=>shN===2?"It stores up to 8 bottles of clean, boiled water.":"A sturdy pot for cooking. It lasts 10 uses."],boar:[()=>shN===1?"A wild boar attacks!":shN+" wild boars attack!","Defend your camp!"],fence:[()=>"Spiked fence level "+shN+" built","Each level wards off one attacking wild boar."],ring:["Stone fire ring built","It stops coals and stray sparks from spreading and keeps your fire contained. The fire burns about 25% slower."],lean:["Lean-to built","The fire is sheltered from rain and burns 15% slower."],catcher:["Rain catcher built","It will gather rainwater while it rains."],stash:["Wooden stash built","Your food is now safe from monkeys and thieves."],rack:["Drying rack built","Hang meat and fish over the fire to smoke it."]};
+function buildSvg(k){
+  const L2=(x1,y1,x2,y2,w,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round"/>',P=(d,x)=>'<g class="shp" style="--d:'+d+'s">'+x+'</g>',flame='<path d="M120 62c3 10 14 13 14 26a14 14 0 0 1-28 0c0-6 4-9 6-14 2 3 4 5 5 5 0-6 1-11 3-17z" fill="#e8863a"/><path d="M120 78c2 6 8 8 8 15a8 8 0 0 1-16 0c0-3 2-5 3-8 1 2 2 3 3 3 0-3 1-6 2-10z" fill="#f6c453"/>';
+  let o='<ellipse cx="120" cy="140" rx="100" ry="8" fill="#26332a"/>';
+  if(k==="ring"){const n=10;for(let i=0;i<n;i++){const a=i/n*Math.PI*2,x=120+Math.cos(a)*50,y=118+Math.sin(a)*16,sh=i%2?"#8a8f88":"#9da29a";o+=P((.1+i*.12).toFixed(2),'<ellipse cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" rx="14" ry="9" fill="'+sh+'" stroke="#5b6058" stroke-width="2"/>')}
+    o+=P(1.5,'<line x1="100" y1="116" x2="140" y2="108" stroke="#6b4a2f" stroke-width="6" stroke-linecap="round"/><line x1="102" y1="108" x2="138" y2="118" stroke="#7a5a38" stroke-width="6" stroke-linecap="round"/>')+P(1.8,flame)}
+  else if(k==="boar"){const n=shN,per=n<=2?n:n<=4?2:n<=6?3:4,rows=Math.ceil(n/per),sc=n===1?1.9:n===2?1.5:n<=4?1.1:.85,W=240/per;
+    for(let i=0;i<n;i++){const r=Math.floor(i/per),c=i%per,x=W*c+W/2-30*sc+(r%2?10:0),y=142-41*sc-(rows-1-r)*50*sc;
+      o+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') scale('+sc+')"><g class="bo" style="--d:'+(i*.12).toFixed(2)+'s"><path d="M30 8l-3 5 5-1 3-5 4 5 4-5 4 5 4-3 3 6" fill="#3a2a20"/><ellipse cx="32" cy="22" rx="22" ry="13" fill="#5a4332"/><ellipse cx="12" cy="25" rx="11" ry="9" fill="#4a3628"/><rect x="0" y="23" width="9" height="7" rx="3" fill="#3a2a20"/><path d="M6 31q-4-6 1-10" stroke="#f1ead2" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M14 14l4-8 4 9z" fill="#3a2a20"/><circle cx="14" cy="22" r="2" fill="#ffd24a"/><circle cx="14" cy="22" r="1" fill="#2a1d14"/><rect x="18" y="31" width="5" height="10" rx="2" fill="#3a2a20"/><rect x="28" y="31" width="5" height="10" rx="2" fill="#3a2a20"/><rect x="40" y="31" width="5" height="10" rx="2" fill="#3a2a20"/><rect x="48" y="31" width="5" height="10" rx="2" fill="#3a2a20"/><path d="M54 18q8-2 6 6" stroke="#3a2a20" stroke-width="2.5" fill="none" stroke-linecap="round"/></g></g>'}
+    o+='<g class="dust"><circle cx="30" cy="148" r="4" fill="#8b8576" opacity=".5"/><circle cx="60" cy="152" r="5" fill="#8b8576" opacity=".4"/></g>'}
+  else if(k==="fence"){const n=shN,cnt=6+n*4,H=26+n*3;let back="",front="";
+    for(let i=0;i<cnt;i++){const a=i/cnt*Math.PI*2,x=120+Math.cos(a)*96,y=120+Math.sin(a)*26,st='<g class="shp" style="--d:'+(.1+i*.045).toFixed(2)+'s">'+fenceStake(x,y,a,H-8,13,5,3.5,"#7a5a38","#c9a574")+'</g>';if(Math.sin(a)<0)back+=st;else front+=st}
+    o=o.replace('cy="140"','cy="146"')+back+P(.2,'<polygon points="120,52 80,118 160,118" fill="#4f7a45"/><polygon points="120,52 104,80 136,80" fill="#5d8d50"/><rect x="108" y="96" width="24" height="22" fill="#3b2c1f"/>')+front;
+    if(n>=3)o+=P(1.6,'<path d="M24 120Q120 160 216 120" stroke="#c9a574" stroke-width="3" fill="none" stroke-linecap="round"/>');
+    if(n>=5)o+=P(1.9,'<path d="M30 108Q120 142 210 108" stroke="#c9a574" stroke-width="3" fill="none" stroke-linecap="round"/>');
+    if(n>=6)o+=P(2.2,'<line x1="120" y1="52" x2="120" y2="30" stroke="#6b4a2f" stroke-width="3"/><polygon points="120,30 144,37 120,44" fill="#d8584a"/>')}
+  else if(k==="monkey"){const n=Math.min(shN,4),W=240/n;
+    for(let i=0;i<n;i++){const x=W*i+W/2-25,y=64+(i%2)*8;
+      o+='<g transform="translate('+x.toFixed(1)+' '+y+')"><g class="mk" style="--d:'+(i*.18).toFixed(2)+'s"><path d="M44 70q22 2 18-22q-2-8-10-6" stroke="#6b4a2f" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="26" cy="56" rx="17" ry="20" fill="#7a5638"/><ellipse cx="26" cy="62" rx="10" ry="12" fill="#c9a37a"/><circle cx="26" cy="28" r="15" fill="#7a5638"/><circle cx="12" cy="26" r="6" fill="#7a5638"/><circle cx="40" cy="26" r="6" fill="#7a5638"/><ellipse cx="26" cy="32" rx="10" ry="9" fill="#d9b88e"/><circle cx="21" cy="28" r="2" fill="#2a1d14"/><circle cx="31" cy="28" r="2" fill="#2a1d14"/><path d="M21 37q5 4 10 0" stroke="#2a1d14" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M7 52q-12 2-12 16" stroke="#7a5638" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M-12 62q-2-9 8-9q-3 6 0 12z" fill="#f0cf4a"/><rect x="14" y="72" width="8" height="12" rx="4" fill="#7a5638"/><rect x="30" y="72" width="8" height="12" rx="4" fill="#7a5638"/></g></g>'}
+    o+='<line x1="0" y1="6" x2="240" y2="6" stroke="#4f7a45" stroke-width="5"/>'}
+  else if(k==="cpot"){const big=shN===2,sc=big?1:.66;
+    o+='<g transform="translate(120 148) scale('+sc+') translate(-120 -148)">'+P(.1,'<path d="M62 74Q50 142 120 150Q190 142 178 74Z" fill="#b5683f" stroke="#7d4425" stroke-width="3"/><path d="M58 96Q120 112 182 96M56 118Q120 134 184 118" stroke="#8c4f2c" stroke-width="3" fill="none"/>')+P(.5,'<ellipse cx="120" cy="74" rx="62" ry="14" fill="#c97b4d" stroke="#7d4425" stroke-width="3"/><ellipse cx="120" cy="75" rx="52" ry="10" fill="#4a2c1b"/>')+P(1,'<ellipse cx="120" cy="77" rx="50" ry="9" fill="#7fb3d5"/><ellipse cx="108" cy="75" rx="14" ry="3" fill="#bfe0f2" opacity=".7"/>')+'<g class="rain">'+[104,124,142].map((x,i)=>'<line x1="'+x+'" y1="'+(30+i*4)+'" x2="'+x+'" y2="'+(46+i*4)+'" stroke="#7fb3d5" stroke-width="3" stroke-linecap="round"/>').join("")+'</g></g>'}
+  else if(k==="catcher"){o+=P(.1,L2(58,40,58,138,6,"#7a5a38")+L2(182,40,182,138,6,"#7a5a38"))+P(.6,'<path d="M50 50Q120 118 190 50L190 60Q120 130 50 60Z" fill="#d9d2bd" stroke="#a89f86" stroke-width="2"/>')+P(1.1,'<ellipse cx="120" cy="136" rx="26" ry="7" fill="#26332a"/><path d="M96 126h48l-5 12h-38z" fill="#6a6f68"/>')+'<g class="rain">'+[84,108,132,156].map((x,i)=>'<line x1="'+x+'" y1="'+(8+i*3)+'" x2="'+(x-5)+'" y2="'+(24+i*3)+'" stroke="#7fb3d5" stroke-width="2" stroke-linecap="round" opacity=".8"/>').join("")+'</g>'+P(1.5,'<path d="M101 131h38l-1.5 5h-35z" fill="#7fb3d5"/>')}
+  else if(k==="stash"){o+=P(.1,'<rect x="60" y="82" width="120" height="56" rx="4" fill="#8a6a45" stroke="#5b432b" stroke-width="3"/><path d="M60 100h120M60 118h120" stroke="#5b432b" stroke-width="2"/>')+P(.7,'<g class="lid"><rect x="54" y="62" width="132" height="24" rx="4" fill="#9a7850" stroke="#5b432b" stroke-width="3"/><path d="M54 74h132" stroke="#5b432b" stroke-width="2"/></g>')+P(1.2,'<rect x="112" y="80" width="16" height="20" rx="3" fill="#c9b36b" stroke="#7d6a2e" stroke-width="2"/><circle cx="120" cy="90" r="2.5" fill="#5b432b"/>')+P(1.5,'<circle cx="88" cy="48" r="9" fill="#e6c14a"/><path d="M146 40c8 0 14 6 14 14s-8 12-14 8z" fill="#d8584a"/>')}
+  else if(k==="rack"){o+=P(.1,L2(70,138,70,56,6,"#6b4a2f")+L2(70,60,60,46,4,"#6b4a2f")+L2(70,60,80,46,4,"#6b4a2f")+L2(170,138,170,56,6,"#6b4a2f")+L2(170,60,160,46,4,"#6b4a2f")+L2(170,60,180,46,4,"#6b4a2f"))+P(.6,L2(56,52,184,52,6,"#7a5a38")+L2(70,96,170,96,4,"#7a5a38"))+P(1,'<path d="M88 54v34q4 8 8 0V54z" fill="#b5533f"/><path d="M110 54v30q4 8 8 0V54z" fill="#a14a38"/><path d="M148 54c10 0 14 14 8 30l-12-2c-3-14-2-28 4-28z" fill="#9aa9a4"/>')+P(1.3,'<path d="M92 98v26q4 8 8 0V98z" fill="#b5533f"/><path d="M132 98v22q4 8 8 0V98z" fill="#a14a38"/>')+P(1.6,'<ellipse cx="120" cy="138" rx="34" ry="8" fill="#2b2f2b"/><path d="M120 124c2 5 9 7 9 12a9 9 0 0 1-18 0c0-3 3-4 4-7 1 2 2 3 3 3 0-3 1-5 2-8z" fill="#e8863a"/>')+'<g class="smk"><path d="M100 36q-8-8 0-16M120 32q-8-8 0-16M140 36q-8-8 0-16" stroke="#aab2ac" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/></g>'}
+  else{o+=P(.1,'<ellipse cx="120" cy="124" rx="38" ry="11" fill="#6a6f68" stroke="#5b6058" stroke-width="2"/><ellipse cx="120" cy="122" rx="26" ry="7" fill="#2b2f2b"/>')+P(.5,'<line x1="100" y1="122" x2="140" y2="116" stroke="#6b4a2f" stroke-width="6" stroke-linecap="round"/>')+P(.8,flame.replace(/M120 62/,"M120 70"))
+    o+=P(1.2,'<line x1="62" y1="132" x2="62" y2="40" stroke="#7a5a38" stroke-width="6" stroke-linecap="round"/><line x1="178" y1="132" x2="178" y2="70" stroke="#7a5a38" stroke-width="6" stroke-linecap="round"/>')+P(1.6,'<polygon points="52,44 192,76 186,96 52,64" fill="#4f7a45" stroke="#3b5c34" stroke-width="2"/><path d="M70 52l-4 14M96 58l-4 14M122 64l-4 14M148 70l-4 14" stroke="#3b5c34" stroke-width="2" stroke-linecap="round"/>')+'<g class="rain">'+[78,112,146].map((x,i)=>'<line x1="'+x+'" y1="'+(10+i*4)+'" x2="'+(x-5)+'" y2="'+(26+i*4)+'" stroke="#7fb3d5" stroke-width="2" stroke-linecap="round" opacity=".7"/>').join("")+'</g>'}
+  return '<svg class="shsvg" viewBox="0 0 240 170" aria-hidden="true">'+o+'</svg>'}
+function shelterSvg(n,inner){
+  const P=(d,x)=>'<g class="shp" style="--d:'+d+'s">'+x+'</g>',lift=n>=4?36:0,by=150-lift,L=(x1,y1,x2,y2,w,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round"/>';
+  let o='<ellipse cx="120" cy="154" rx="100" ry="7" fill="#26332a"/>';
+  if(n>=4){o+=P(.1,L(62,116,62,152,6,"#6b4a2f")+L(92,116,92,152,6,"#6b4a2f")+L(148,116,148,152,6,"#6b4a2f")+L(178,116,178,152,6,"#6b4a2f"));
+    o+=P(.5,'<rect x="50" y="110" width="140" height="8" rx="2" fill="#8a6a45"/>');
+    if(n>=5)o+=P(.9,L(62,150,92,118,3,"#6b4a2f")+L(92,150,62,118,3,"#6b4a2f")+L(148,150,178,118,3,"#6b4a2f")+L(178,150,148,118,3,"#6b4a2f"))}
+  const t=n>=4?.3:0;
+  o+=P(.2+t,L(58,by,118,by-88,5,"#7a5a38")+L(182,by,122,by-88,5,"#7a5a38"));
+  o+=P(.6+t,'<polygon points="118,'+(by-86)+' 58,'+by+' 120,'+by+'" fill="#4f7a45"/>');
+  if(n>=2)o+=P(1+t,'<polygon points="122,'+(by-86)+' 182,'+by+' 120,'+by+'" fill="#5d8d50"/>'+L(70,by,70,by-18,3,"#6b4a2f")+L(170,by,170,by-18,3,"#6b4a2f"));
+  if(n>=3)o+=P(1.4+t,'<polygon points="104,'+(by-70)+' 46,'+(by+4)+' 66,'+(by+4)+' 120,'+(by-62)+'" fill="#6b4a2f"/><polygon points="136,'+(by-70)+' 194,'+(by+4)+' 174,'+(by+4)+' 120,'+(by-62)+'" fill="#7a5a38"/><circle cx="120" cy="'+(by-12)+'" r="16" fill="#e8863a" opacity=".25"/><path d="M120 '+(by-26)+'c2 7 9 9 9 17a9 9 0 0 1-18 0c0-4 3-6 4-9 1 2 2 3 3 3 0-4 1-7 2-11z" fill="#e8863a"/>');
+  if(n>=5)o+=P(1.8+t,L(120,by-88,120,by-112,3,"#6b4a2f")+'<polygon points="120,'+(by-112)+' 144,'+(by-105)+' 120,'+(by-98)+'" fill="#d8584a"/>');
+  return inner?o:'<svg class="shsvg" viewBox="0 0 240 170" aria-hidden="true">'+o+'</svg>'}
+function fenceStake(x,y,a,L,tl,w,tw,pc,tc){let dx=Math.cos(a)*.8,dy=-1+Math.sin(a)*.35;const m=Math.hypot(dx,dy);dx/=m;dy/=m;const ex=x+dx*L,ey=y+dy*L,tx=ex+dx*tl,ty=ey+dy*tl,px=-dy*tw,py=dx*tw,f=n=>n.toFixed(1);
+ return '<line x1="'+f(x)+'" y1="'+f(y)+'" x2="'+f(ex)+'" y2="'+f(ey)+'" stroke="'+pc+'" stroke-width="'+w+'" stroke-linecap="round"/><polygon points="'+f(ex-px)+','+f(ey-py)+' '+f(tx)+','+f(ty)+' '+f(ex+px)+','+f(ey+py)+'" fill="'+tc+'"/>'}
+function campSvg(){const s=v(),lit=fireLit(),fl=lit?fireLvl():0;
+  const G=(on,g,x,y,sc,label)=>!on?"":'<g transform="translate('+x+' '+y+') scale('+sc+')" >'+g+'</g><text x="'+x+'" y="'+(y+14)+'" text-anchor="middle" class="cl">'+label+'</text>';
+  const ln=(x1,y1,x2,y2,w,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round"/>';
+  const flame=(sc)=>'<g transform="scale('+sc+')"><path d="M0-30c3 9 12 11 12 22a12 12 0 0 1-24 0c0-5 4-8 5-12 2 3 3 4 4 4 0-5 1-9 3-14z" fill="#e8863a"/><path d="M0-17c2 5 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-7 1 2 2 2 2 2 0-2 0-4 1-6z" fill="#f6c453"/></g>';
+  let o='<ellipse cx="170" cy="184" rx="160" ry="58" fill="#26332a"/>';
+  // fence
+  if(S.fence){const cnt=8+S.fence*4,H=14+S.fence*2;for(let i=0;i<cnt;i++){const a=i/cnt*Math.PI*2,x=170+Math.cos(a)*144,y=184+Math.sin(a)*54;o+=fenceStake(x,y,a,H,7,3.5,2.5,"#7a5a38","#c9a574")}}
+  // shelter
+  o+=S.sh?'<g transform="translate(54 -12) scale(.96)">'+shelterSvg(S.sh,true)+'</g><text x="170" y="148" text-anchor="middle" class="cl">Shelter lv '+S.sh+'</text>':"";
+  // rack
+  o+=G(S.rack,ln(-20,0,-20,-40,4,"#6b4a2f")+ln(20,0,20,-40,4,"#6b4a2f")+ln(-26,-38,26,-38,4,"#7a5a38")+'<path d="M-10-38v18q3 5 6 0v-18zM6-38v14q3 5 6 0v-14z" fill="#b5533f"/>',62,138,1,"Smoking rack");
+  // pots
+  o+=G(s.spot>0,'<path d="M-14-22Q-18 0 0 2Q18 0 14-22Z" fill="#b5683f" stroke="#7d4425" stroke-width="2"/><ellipse cx="0" cy="-22" rx="14" ry="4" fill="#c97b4d" stroke="#7d4425" stroke-width="2"/>',286,112,1,"Clay pot");
+  o+=G(s.bpot>0,'<path d="M-20-30Q-26 0 0 3Q26 0 20-30Z" fill="#b5683f" stroke="#7d4425" stroke-width="2"/><ellipse cx="0" cy="-30" rx="20" ry="5" fill="#c97b4d" stroke="#7d4425" stroke-width="2"/><ellipse cx="0" cy="-29" rx="15" ry="3" fill="#7fb3d5"/>',286,166,1,"Big pot "+(S.stored||0)+"/"+(s.bpot||0)*8);
+  // stash
+  o+=G(S.stash,'<rect x="-20" y="-24" width="40" height="24" rx="2" fill="#8a6a45" stroke="#5b432b" stroke-width="2"/><rect x="-22" y="-34" width="44" height="11" rx="2" fill="#9a7850" stroke="#5b432b" stroke-width="2"/><rect x="-4" y="-28" width="8" height="9" rx="2" fill="#c9b36b"/>',92,212,1,"Stash");
+  // rain catcher
+  o+=G(S.catcher,ln(-22,0,-22,-34,4,"#7a5a38")+ln(22,0,22,-34,4,"#7a5a38")+'<path d="M-26-30Q0-6 26-30L26-26Q0-1-26-26Z" fill="#d9d2bd" stroke="#a89f86" stroke-width="1.5"/>',252,214,1,"Rain catcher");
+  // fire
+  const lean=S.lean?ln(-30,-4,-30,-42,4,"#7a5a38")+ln(30,-4,30,-30,4,"#7a5a38")+'<polygon points="-36,-42 38,-30 36,-22 -36,-34" fill="#4f7a45" stroke="#3b5c34" stroke-width="1.5"/>':"";
+  const ring=S.ring?[0,1,2,3,4,5,6,7].map(i=>{const a=i/8*Math.PI*2;return '<ellipse cx="'+(Math.cos(a)*22).toFixed(1)+'" cy="'+(-4+Math.sin(a)*7).toFixed(1)+'" rx="7" ry="4.5" fill="#8a8f88" stroke="#5b6058" stroke-width="1.5"/>'}).join(""):'';
+  if(lit||S.ring||S.lean)o+='<g transform="translate(170 204)">'+ring+'<line x1="-12" y1="-4" x2="12" y2="-8" stroke="#6b4a2f" stroke-width="4" stroke-linecap="round"/><line x1="-12" y1="-8" x2="12" y2="-4" stroke="#7a5a38" stroke-width="4" stroke-linecap="round"/>'+(lit?flame(.45+.1*fl):"")+lean+'</g><text x="170" y="228" text-anchor="middle" class="cl">'+(lit?FN[fl]:"Fire pit")+'</text>';
+  return '<svg class="campsvg" viewBox="0 0 340 246" aria-hidden="true">'+o+'</svg>'}
+function campList(){const s=v(),n=(a,b)=>a?b:"";
+  return [["Shelter",S.sh?"Level "+S.sh+" of 5. "+SHD[S.sh]:""],
+   ["Spiked fence",S.fence?"Level "+S.fence+" of 6. Wards off "+S.fence+(S.fence>1?" attacking boars.":" attacking boar."):""],
+   ["Fire ring",n(S.ring,"Built. The fire burns about 25% slower.")],["Lean-to",n(S.lean,"Built. The fire is sheltered from rain.")],
+   ["Wooden stash",n(S.stash,"Built. "+(3-(S.stashHits||0))+" of 3 attacks left before it breaks.")],
+   ["Rain catcher",n(S.catcher,"Built. Holds "+(S.catch||0)+" of 6 water.")],["Smoking rack",n(S.rack,"Built. Smoke meat and fish to keep them.")],
+   ["Clay pots",(s.spot>0?"Small clay pot, "+(10-(S.spotUses||0))+" uses left. ":"")+(s.bpot>0?"Big clay pot x"+s.bpot+", "+(S.stored||0)+" of "+(s.bpot*8)+" water stored.":"")],
+   ["Traps",(S.placed.length?"Snares set: "+S.placed.length:"")+(S.placed.length&&S.fplaced.length?" · ":"")+(S.fplaced.length?"Fish traps set: "+S.fplaced.length:"")]].filter(r=>r[1])}
+function fireAnim(lv){const L=Math.max(1,Math.min(8,lv)),res=[];FLM[L].forEach((x,i)=>{if(i%2)res.unshift(x);else res.push(x)});
+  const fl=res.map((sc,i)=>'<svg class="fl" style="--s:'+sc+';--d:'+(i*.13).toFixed(2)+'s;--t:'+(.5+.05*i).toFixed(2)+'s" viewBox="0 0 20 28" aria-hidden="true"><path d="M10 1C11 8 18 12 18 19a8 8 0 0 1-16 0c0-4 3-6 4-9 1 2 2 3 3 3 0-4 0-8 1-12z" fill="#e8863a"/><path d="M10 13c1 4 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-5 1 1 1 2 2 2 0-2 0-4 0-6z" fill="#f6c453"/></svg>').join("");
+  let sp="";if(L>=5)for(let i=0;i<L-3;i++)sp+='<b class="spk" style="left:'+(12+i*(76/(L-4)))+'%;--d:'+(i*.35).toFixed(2)+'s"></b>';
+  return '<span class="fx" aria-hidden="true">'+sp+'<span class="flrow">'+fl+'</span>'+(L>=3?'<i class="logs"></i>':'')+'</span>'}
+const weap=()=>v().spear>0||v().hbow>0;
+const gun=()=>v().pistol>0&&v().ammo>0;
+const restMult=()=>(wxOn("cold")&&fireLvl()<4?.5:1)*(S.fever?.7:1);
+const shelterCost=n=>{const c=Object.assign({},SHELTER[n]);if(v().saw>0&&c.wood)c.wood=Math.ceil(c.wood*.75);return c};
+const FIND=["rope","sailcloth","bottle","flint","metal","vine","bandage","stick","tinder","magnifier"];
+const FNAME={rope:"a coil of rope",sailcloth:"torn sailcloth",bottle:"an empty bottle",flint:"a flintstone",metal:"a piece of metal",vine:"a length of vine",bandage:"a ready-made bandage",stick:"a sturdy stick",tinder:"a bundle of dry tinder",magnifier:"a magnifying glass"};
+const SZ=["small","normal-sized","big"];
+const rollSz=()=>{const r=Math.random();return r<.5?0:r<.85?1:2};
+const ANI=[["bird","jungle rat","lizard"],["rabbit","wild hen","possum"],["wild pig","deer","monitor lizard"]];
+const FISH_FW=[["minnow","loach","bitterling"],["tilapia","perch","carp"],["catfish","eel","snakehead"]];
+const FISH_SEA=[["sardine","goby","anchovy"],["mullet","snapper","parrotfish"],["grouper","barracuda","trevally"]];
+const catchOne=tbl=>{const z=rollSz();return {z,name:pick(tbl[z]),meat:z+1}};
+const dscr=c=>"a "+SZ[c.z]+" "+c.name+" ("+c.meat+" meat)";
+const joinList=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+function tally(keys,one,many){const c={};keys.forEach(k=>c[k]=(c[k]||0)+1);return Object.keys(c).map(k=>c[k]>1?c[k]+"x "+many(k):one(k)).join(", ")}
+const SHORT={wood:"driftwood"};
+const DOGOK="You press the dressing against the wound. The dog flinches, then licks your hand. By evening it is curled up near your fire. You have a companion.";
+function rareFind(){const p=["rations","rations"];["pot","magnifier","axe","saw","hammer","pistol"].forEach(k=>{if(!v()[k])p.push(k)});return pick(p)}
+function hermitFood(){let b=null;Object.keys(FOOD).forEach(k=>{if(k!=="mushroom"&&v()[k]>0&&(!b||FOOD[k].h<FOOD[b].h))b=k});return b}
+const TOOLPAIRS=[["axe","brokenaxe"],["saw","brokensaw"],["hammer","brokenhammer"],["hbow","brokenbow"]];
+function toolPool(){const p=[];TOOLPAIRS.forEach(([t,b])=>{if(!v()[t]&&!v()[b]){p.push(t,b,b)}});if(!v().pistol)p.push("pistol");return p}
+const TM={axe:"You find an axe lodged in a stump. Rusty, but the edge is good.",saw:"A hand saw lies in a cracked toolbox in the sand. The teeth are intact.",hammer:"You dig a claw hammer out of the sand beside a splintered crate.",hbow:"A well-made hunting bow hangs from a low branch, strung and ready.",pistol:"In an oilskin pouch among the wreckage you find a small pistol and 3 rounds.",brokenaxe:"You find a rusted axe head, snapped from its handle. It could be repaired.",brokensaw:"You find a saw blade, cracked but usable. It needs a new frame.",brokenhammer:"You find a hammer head with no handle. It could be repaired.",brokenbow:"You find a limb of a good bow, warped but not broken. It could be restrung."};
+const DAILY=[
+ {id:"rain",ok:()=>Math.floor(S.t/1440)>=4,run(){const s=v();S.wx="rain";let m="Heavy rain hammers the island. ";if(s.bottle>0){s.water=Math.max(s.water,s.bottle-(s.rawwater||0));m+="Your bottles fill with rainwater. "}if(S.catcher)S.catch=6;if(s.wood>0){if(S.lean||S.sh>=2)m+="Your shelter keeps your wood dry. ";else{s.wet+=s.wood;s.wood=0;m+="Your wood is soaked through. "}}if(fireLit()&&!prot()){S.fireEnd-=Math.floor((S.fireEnd-S.t)*.3);m+="The downpour weakens your fire."}return m}},
+ {id:"fog",ok:()=>S.looks>=1,run(){S.wx="fog";return "A thick fog rolls in off the sea. You cannot see more than a few steps. Exploring, foraging and gathering wood are too dangerous today."}},
+ {id:"wind",ok:()=>true,run(){S.wx="wind";return "Strong winds whip through the clearing. Starting a fire will be harder today."}},
+ {id:"calm",ok:()=>true,run(){S.wx="calm";return "A calm, bright morning. The sea is flat and nothing stirs."}},
+ {id:"heat",ok:()=>true,run(){S.wx="heat";return "A heat wave settles over the island. You will get thirsty much faster today."}},
+ {id:"cold",ok:()=>true,run(){S.wx="cold";return "A bitter cold sweeps in. Without a Cooking Fire or better burning, you will gain 15 hypothermia points every hour, tire quickly and rest poorly today."}},
+ {id:"animal",ok:()=>S.looks>=2,run(){if(S.dog===2)return "Your dog growls at the brush and sees off an animal before it reaches your shelter.";if(!S.pend)S.pend="animal";return null}},
+ {id:"noises",ok:()=>S.looks>=2,run(){if(!S.pend)S.pend="noises";return null}},
+ {id:"dog",ok:()=>S.dog<2&&!S.dogBack&&S.looks>=2&&Math.floor(S.t/1440)+1>=3,run(){if(!S.pend)S.pend="dog";return null}},
+ {id:"fp",ok:()=>S.fp===0&&Math.floor(S.t/1440)+1>=3,run(){S.fp=1;return "Fresh bare footprints cross the mud near your camp, too small to be yours. Someone else is on this island."}},
+ {id:"hermit",ok:()=>S.fp===1&&S.hermit===0&&S.looks>=2,run(){S.fp=2;if(!S.pend)S.pend="hermit";return null}},
+ {id:"supply",ok:()=>true,run(){S.supply=1;return "Abandoned supplies have washed up on the beach. Search the shore to see what you can salvage."}},
+ {id:"drift",ok:()=>true,run(){S.drift=1;return "A tangle of driftwood has washed ashore overnight. Seasoned wood is waiting on the beach."}},
+ {id:"plants",ok:()=>S.looks>=2,run(){S.berries=(S.berries||0)+3;return "You spot wild berries growing beside a fallen log in the clearing."}},
+ {id:"tree",ok:()=>S.looks>=3&&!S.tree,run(){S.tree=true;return "A large tree has come down across the trail to the lake. You will need to cut it or move it."}},
+ {id:"tools",ok:()=>toolPool().length>0,run(){const k=pick(toolPool());v()[k]=1;if(k==="pistol")v().ammo+=3;return TM[k]}},
+ {id:"injury",ok:()=>true,run(){const n=3+Math.floor(Math.random()*6);hurt(n,"An infection from a small wound finished you.");if(S.dead)return null;S.injured=true;return "You wake with a twisted ankle and a gash on your arm. It will slow you down until it heals. Rest, or use a bandage or herbs."}},
+ {id:"exhaust",ok:()=>true,run(){S.exhaust=2;return "You slept badly and wake heavy-limbed. Even good sleep may not clear all your tiredness for a while."}},
+ {id:"cave",ok:()=>!S.cave&&!S.caveHint&&S.looks>=3,run(){S.caveHint=true;return "You notice dark gaps in the rock above the lake. Exploring the area might turn up a cave."}},
+ {id:"river",ok:()=>!S.river&&!S.riverHint&&S.looks>=3,run(){S.riverHint=true;return "Beyond the lake you hear a faster, louder sound of running water. Exploring the area might turn up a river stream."}}
+];
+function rollDay(){
+  S.wx=null;S.wxDay=Math.floor(S.t/1440);
+  {const dn=S.wxDay+1;if(dn>=10&&dn<=20&&!S.pend&&Math.random()<.1)S.pend="scorpion"}
+  const pool=DAILY.filter(e=>e.ok()&&e.id!==S.lastDaily);
+  if(!pool.length)return;
+  const e=pick(pool);S.lastDaily=e.id;
+  const m=e.run();if(m)NEWS.push(m);
+}
+function syncB(){S.bat=S.bat||{};PER.forEach(k=>{const b=S.bat[k]=S.bat[k]||[],known=b.reduce((a,x)=>a+x[0],0),cur=v()[k]||0;if(cur>known)b.push([cur-known,S.t]);else if(cur<known){let r=known-cur;while(r>0&&b.length){const x=b[0];if(x[0]<=r){r-=x[0];b.shift()}else{x[0]-=r;r=0}}}})}
+function moveB(from,to){syncB();const n=v()[from]||0;if(!n)return;v()[to]=(v()[to]||0)+n;v()[from]=0;if(LIFE[to]){const fb=LIFE[from]?(S.bat[from]||[]):[[n,S.t]];S.bat[to]=(S.bat[to]||[]).concat(fb).sort((a,b)=>a[1]-b[1])}if(LIFE[from])S.bat[from]=[]}
+function cookPotLabel(){const s=v(),sp=s.spot>0,n=(sp?10-(S.spotUses||0):5-(S.potUses||0));return " · "+(sp?"clay pot, ":"battered pot, ")+n+(n===1?" use":" uses")+" left"}
+function useCookPot(){const s=v();if(s.spot>0){S.spotUses=(S.spotUses||0)+1;if(S.spotUses>=10){s.spot=0;S.spotUses=0;NEWS.push("Your clay pot cracks from the heat and falls apart. It gave you ten uses.")}return}S.potUses=(S.potUses||0)+1;if(S.potUses>=5){s.pot=0;S.potUses=0;NEWS.push("The battered pot cracks and falls apart. It gave you five uses.")}}
+function rainFlood(){if(S.sh>=4){NEWS.push("The rain swells the lake and floods the camp, but your elevated shelter keeps your supplies above the water.");return}
+  const lose=n=>{let l=0;for(let i=0;i<n;i++)if(Math.random()<.5)l++;return l};const gone=[];
+  const w=lose(v().wood||0),wt=lose(v().wet||0);v().wood-=w;v().wet-=wt;if(w+wt)gone.push((w+wt)+" wood");
+  FOODALL.forEach(k=>{const n=v()[k]||0,l=lose(n);if(l){v()[k]-=l;gone.push(l+" "+NAME[k].toLowerCase())}});
+  NEWS.push("The rain swells the lake and floods the camp. Rising water sweeps through your supplies"+(gone.length?" and carries off "+gone.join(", ")+".":", but takes nothing this time."))}
+function hitStash(){if(!S.stash)return null;S.stashHits=(S.stashHits||0)+1;const broke=S.stashHits>=3;if(broke){S.stash=false;S.stashHits=0}return {broke}}
+function ratAttack(){const h=hitStash();
+  if(h){NEWS.push(h.broke?"In the dark, rats swarm your supplies, drawn by the smell of spoiled food. They gnaw through your wooden stash and it falls apart. Your food is safe this time, but the stash is gone.":"In the dark, rats swarm your supplies, drawn by the smell of spoiled food. They gnaw at your wooden stash but cannot get in.");return}
+  const took=[];FOODALL.forEach(k=>{const n=v()[k]||0,t=Math.ceil(n/2);if(t>0){v()[k]-=t;took.push(t+" "+NAME[k].toLowerCase())}});
+  NEWS.push(took.length?"In the dark, rats swarm your supplies, drawn by the smell of spoiled food. They carry off half of what you had: "+took.join(", ")+".":"In the dark, rats swarm your supplies, but there is no food left for them to take.")}
+function spoilCheck(){const bad=[];PER.forEach(k=>{const b=S.bat&&S.bat[k];if(!b||!b.length)return;let lost=0;while(b.length&&S.t>=b[0][1]+LIFE[k]){lost+=b[0][0];b.shift()}if(lost){v()[k]=Math.max(0,(v()[k]||0)-lost);bad.push(lost+" "+NAME[k].toLowerCase())}});if(bad.length){NEWS.push("Some of your food has spoiled: "+bad.join(", ")+".");if(Math.random()<.5){if(isNight())ratAttack();else S.ratDue=true}}}
+function spoilInfo(k){if(!LIFE[k])return "";syncB();const b=S.bat[k];if(!b||!b.length)return "";return '<p class="sp">'+b.map(x=>{const t=x[1]+LIFE[k],r=Math.max(0,t-S.t),h=Math.max(1,Math.round(r/60));return x[0]+" spoil"+(x[0]===1?"s":"")+" in about "+h+(h===1?" hour":" hours")}).join(" · ")+"</p>"}
+function tick(mins,rate=1,asleep=false){let rolled=false;syncB();
+  for(let i=0;i<mins;i+=10){
+    const d=Math.min(10,mins-i),q=d/10,pd=Math.floor(S.t/1440),pr=Math.floor((S.t-360)/1440);S.t+=d;spoilCheck();if(S.ratDue&&isNight()){S.ratDue=false;ratAttack()}if(Math.floor((S.t-360)/1440)>pr)rollDay();
+    {const rn=raining();if(rn&&!S.rainOn){if(!NEWS.some(m=>/rain/i.test(m)))NEWS.push("It has started to rain.");if(Math.random()<.2)rainFlood()}S.rainOn=rn}
+    if(S.hermit===1){S.hAcc=(S.hAcc||0)+d;if(S.hAcc>=120){S.hAcc-=120;const w=1+Math.floor(Math.random()*5),it=pick(["banana","mango","guava","nuts","berries","coconut","vine","stick","timber"]);v().wood+=w;v()[it]++;HG.w+=w;HG.items[it]=(HG.items[it]||0)+1}}S.hunger=clamp(S.hunger+.5*rate*q);S.thirst=clamp(S.thirst+.7*rate*q*(wxOn("heat")?1.6:1));
+    if(S.lensT&&S.t>=S.lensT){S.lensT=0;if(v().lens>0){v().lens=0;NEWS.push("You seem to have misplaced the lens.")}}
+    if(S.dogBack&&S.t>=S.dogBack){S.dogBack=0;S.dog=2;NEWS.push("Your dog trots back into camp, tail wagging, as if it never left.")}
+    if(S.dog===2&&!isNight()&&hour()>=12&&S.dogFedDay!==day()){S.dogFedDay=day();
+      const FK=[["fish","fish"],["snake","snake meat"],["game","game meat"],["cfish","cooked fish"],["csnake","cooked snake meat"],["cgame","cooked meat"],["smokedfish","smoked fish"],["smokedmeat","smoked meat"]],fk=FK.find(x=>v()[x[0]]>0);
+      if(fk){v()[fk[0]]--;NEWS.push("Your dog looks up at you with begging eyes, tail wagging. You give it some "+fk[1]+".")}
+      else{NEWS.push("Your dog looks up at you with begging eyes, tail wagging. You have nothing to give it, and it slinks off into the trees.");S.dog=1;S.dogBack=S.t+1440}}
+    if(S.dog===2&&!S.dogHurt&&!isNight()){S.dAcc=(S.dAcc||0)+d;while(S.dAcc>=180){S.dAcc-=180;
+      if(S.dBrDay!==day()){S.dBrDay=day();S.dTrips=0;S.dBrToday=Math.random()<.2?1+Math.floor(Math.random()*3):0}
+      S.dTrips=(S.dTrips||0)+1;const bruised=S.dBrToday>0&&S.dTrips===S.dBrToday,empty=Math.random()<.5;
+      if(empty){if(!bruised)NEWS.push("Your dog comes back panting, with nothing to show for it.")}
+      else{const c=pick(["herbs","stick","wood","fruit"]);if(c==="fruit"){const k=pick(["banana","mango","guava","berries","nuts","coconut"]);v()[k]++;NEWS.push("Your dog trots back with "+NAME[k].toLowerCase()+" in its mouth and drops it at your feet.")}
+      else{v()[c]++;NEWS.push("Your dog trots back with "+(c==="herbs"?"a mouthful of healing herbs":c==="stick"?"a sturdy stick":"a piece of wood")+" and drops it at your feet.")}}
+      if(bruised){S.dogHurt=true;NEWS.push("Your dog limps back with a bruised leg and lies down, whining. It needs treating.");break}}}
+    if(fireLit()&&!S.ring&&!asleep&&!S.dead&&S.loc==="camp"){S.coalAcc=(S.coalAcc||0)+d;while(S.coalAcc>=60){S.coalAcc-=60;if(Math.random()<.1){hurt(15,"A burning coal started an infection that finished you.");if(!S.dead){S.injured=true;NEWS.push("Ouch! You stepped on a burning coal. A stone circle around the fire would help contain it.")}}}}
+    if(raining()&&fireLit()&&!prot())S.fireEnd-=d; // rain drowns an unprotected fire twice as fast
+    if((S.ring||S.lean)&&fireLit()){S.ringAcc=(S.ringAcc||0)+d*((S.ring?.25:0)+(S.lean?.15:0));const w=Math.floor(S.ringAcc);S.ringAcc-=w;S.fireEnd+=w}
+    if(S.catcher&&raining()){S.catchAcc=(S.catchAcc||0)+d;const n=Math.floor(S.catchAcc/30);S.catchAcc-=n*30;S.catch=Math.min(6,(S.catch||0)+n)}
+    if(S.dryN>0&&fireLit()){S.dryAcc=(S.dryAcc||0)+d;const n=Math.min(S.dryN,Math.floor(S.dryAcc/45));if(n>0){S.dryAcc-=n*45;S.dryN-=n;v().wood+=n;const m="Some of the wood beside the fire has dried.";if(!NEWS.includes(m))NEWS.push(m)}if(!S.dryN)S.dryAcc=0}
+    S.fl=fireLvl();
+    if(isNight()&&!asleep)S.fatigue=clamp(S.fatigue+.15*q);
+    if(wxOn("cold")&&fireLvl()<4)S.fatigue=clamp(S.fatigue+.2*q);
+    {const nt=isNight(),camp=S.loc==="camp",sm=camp?Math.max(0,1-.2*(S.sh||0)):1,rm=raining()?2:1;let c=S.cold||0;
+      if(nt){c+=((5/6)*q*sm+((!fireLit()&&asleep)?2.5*q*sm:0))*rm}
+      if(wxOn("cold")&&fireLvl()<4)c+=2.5*q*rm;
+      if(raining())c+=.5*q;
+      if(camp&&fireLit()&&fireLvl()>=4)c-=1*q;
+      else if(!nt&&!raining())c-=.3*q;
+      S.cold=clamp(c)}
+    if(S.cold>=100&&!S.dead){die("You die of hypothermia.",true,"cold");return}
+    if(S.dog!==2&&!S.fence&&S.looks>=2&&S.sh<3&&(S.sh>0||S.lean)&&Math.random()<.0012*q){if(S.sh>0&&(!S.lean||Math.random()<.6)){S.sh--;NEWS.push(S.sh?"A wild animal tears through your shelter. It is knocked down to level "+S.sh+".":"A wild animal tears your shelter apart. Nothing is left standing.")}else{S.lean=false;NEWS.push("A wild animal smashes your lean-to. Your fire is exposed again.")}}
+    if(S.dog!==2&&S.sh<4&&!S.stash&&S.looks>=2&&Object.keys(FOOD).some(x=>v()[x]>0)&&Math.random()<.004){const k=pick(Object.keys(FOOD).filter(x=>v()[x]>0));v()[k]--;NEWS.push("A wandering animal raids your camp and drags off some "+NAME[k].toLowerCase()+".")}
+    if(isNight()&&!fireLit()){
+      if(asleep){if(!rolled){rolled=true;if(Math.random()<(Math.floor(S.t/1440)+1>10?.6:.2)){S.doom="camp";return}}}
+      else if(Math.random()<1-Math.pow(.5,d/60)){S.doom="camp";return}
+    }
+    if(S.hunger>=90)S.health-=.5*q;if(S.thirst>=90)S.health-=1*q;if(S.cold>=90)S.health-=1*q;else if(S.cold>=70)S.health-=.4*q;
+    if(S.health<=0){S.health=0;die(S.cold>=70?"The cold took you. Hypothermia set in.":S.thirst>=90?"Thirst took the last of your strength.":"Hunger wore you down.");return}
+  }
+}
+function spend(m,f,r){S.fatigue=clamp(S.fatigue+f*.8*(S.injured?1.3:1)*(S.fever?1.3:1));tick(m,r)}
+function say(t,x){S.title=t||({beach:"Shipwreck beach",camp:"The clearing",stream:"Freshwater lake",river:"River stream",cave:"The cave"})[S.loc];S.text=x}
+function hurt(n,msg){S.health-=n;if(S.health<=0){S.health=0;die(msg)}}
+
+// Scripted threats
+const EV=[
+ {id:"snake",d:5,h:15,title:"Something in the shelter",text:"A dry hiss. A snake has slipped inside your shelter and coiled beside your bedding.",opts:[
+  {l:"Hook it with a stick and fling it into the fire",ok:()=>v().stick>0&&S.fl>=4&&fireLit(),run(){v().snake++;return "You pin it on the stick and hurl it into the fire. You drag the charred meat from the coals."}},
+  {l:"Spear it",ok:()=>weap(),run(){v().snake++;return "The spear is quick. You skin the snake and keep the meat."}},
+  {l:"Pin it with a stick and cut it with a sharp stone",ok:()=>v().stick>0&&v().stone>0,run(){if(Math.random()<.7){v().snake++;return "It thrashes, then goes still. You keep the meat."}die("The snake twisted free and bit you. The venom was fast. You died.")}}],
+  bare:{l:"Freeze and hope",run(){die("The snake struck. The venom was fast. You died.")}}},
+ {id:"storm",d:15,h:17,title:"Storm",text:"The sky goes black. Wind tears at the clearing and rain comes sideways.",opts:[
+  {l:"Brace the roof (6 wood)",ok:()=>S.sh>=1&&can({wood:6}),run(){take({wood:6});return "You lash extra branches over the frame. It holds."}},
+  {l:"Ride it out in your shelter",ok:()=>S.sh>=3,run(){hurt(5,"The storm took you.");return "The sturdy walls shudder but stand. You come out shaken."}},
+  {l:"Lash the reed tarp over your camp",ok:()=>v().tarp>0,run(){v().tarp--;return "The tarp bellies and snaps in the wind, but it holds. You stay dry."}}],
+  bare:{l:"Huddle under the trees",run(){hurt(45,"The storm took you.");v().wood=Math.floor(v().wood/2);v().wet=Math.floor(v().wet/2);return "Cold, soaked and bruised. The wind scatters half your wood."}}},
+ {id:"fever",d:20,h:10,title:"Fever",text:"Your head pounds and your skin burns. A cut has gone bad, and the shivers will not stop.",opts:[
+  {l:"Drink clean water and rest (2 water)",ok:()=>v().water>=2,run(){v().water-=2;S.thirst=clamp(S.thirst-30);hurt(10,"The fever took you.");return "Sip by sip, the fever breaks. You wake weak but clear."}},
+  {l:"Apply the herbal salve",ok:()=>v().salve>0,run(){v().salve--;hurt(2,"The fever took you.");return "The salve cools the fever fast. You are weak, but through the worst of it."}}],
+  bare:{l:"Sweat it out",run(){hurt(45,"The fever took you.");return "You lose a day to the sickness. You wake drained."}}},
+ {id:"prowler",d:23,h:22,title:"Eyes in the dark",text:"Low growls ring the clearing. Something large circles just past the firelight, waiting for it to sink.",opts:[
+  {l:"Pile on wood to blaze the fire",ok:()=>fireLit()&&S.fl>=5,run(){return "Flames leap higher. The eyes retreat into the dark."}},
+  {l:"Hold the line with your spear",ok:()=>weap()&&S.sh>=4,run(){return "You brace behind the shelter wall. The prowler tests it once and slinks away."}},
+  {l:"Rattle and shout into the dark",ok:()=>v().rattle>0,run(){v().rattle--;return "The racket echoes through the trees. Something large retreats into the dark."}}],
+  bare:{l:"Wait and pray",run(){die(BEAST,true)}}}
+];
+const REV=[
+ {id:"jackals",title:"Eyes in the brush",text:"A pack of wild dogs slinks out of the trees, lips peeled back. They have smelled your food.",opts:[
+  {l:"Meet them with your spear",ok:()=>weap(),run(){return "You jab and shout. The lead dog yelps and the pack scatters."}},
+  {l:"Drive them off with burning brands",ok:()=>v().stick>0&&fireLit()&&S.fl>=3,run(){return "Sparks fly as you swing a flaming branch. The dogs back off, snarling, and melt into the trees."}},
+  {l:"Retreat to your elevated shelter",ok:()=>S.sh>=4,run(){return "You scramble up the stilts and pull the ladder after you. They circle below and lose interest."}},
+  {l:"Shake the alarm rattle",ok:()=>v().rattle>0,run(){v().rattle--;return "The clatter and shouting spook the pack. They scatter into the trees."}},
+  {l:"Fire the pistol into the air",ok:()=>gun(),run(){v().ammo--;return "The shot cracks across the island. The pack bolts and does not come back."}}],
+  bare:{l:"Stand your ground bare-handed",run(){hurt(60,"The dogs tore you apart.");const k=Object.keys(FOOD).filter(x=>v()[x]>0);if(k.length&&!S.stash)v()[pick(k)]=0;return "You fight them off with fists and a stick, but you are badly bitten. They drag off some of your food."}}},
+ {id:"flood",title:"The water is rising",text:"Heavy rain has swollen the lake. Brown water surges over the shore and spills across the land.",opts:[
+  {l:"Retreat to your elevated shelter",ok:()=>S.sh>=4,run(){return "The water swirls under the stilts. Everything you own stays dry."}},
+  {l:"Haul supplies up a tree with rope",ok:()=>v().rope>=1,run(){v().rope--;return "You hoist your gear into the branches and cling on until the water drains away. The rope is ruined."}},
+  {l:"Wrap your gear in the reed tarp and lash it high",ok:()=>v().tarp>0,run(){v().tarp--;return "The tarp keeps your gear dry above the waterline until the flood passes."}}],
+  bare:{l:"Scramble for high ground",run(){hurt(40,"The flood swept you away.");v().wood=Math.floor(v().wood/2);v().wet=0;S.fireEnd=S.t;return "You are swept off your feet. You crawl out battered and soaked, without half your wood. Your fire is out."}}},
+ {id:"spider",title:"Something bit you",text:"A sharp sting between your toes. A thick-legged spider the size of your palm scuttles away, and the bite is already swelling.",opts:[
+  {l:"Dress the bite with a bandage",ok:()=>v().bandage>0,run(){v().bandage--;hurt(8,"Venom got the better of you.");return "You clean and bind the bite. It throbs, but the swelling stops."}},
+  {l:"Apply a poultice of herbs",ok:()=>v().herbs>0,run(){v().herbs--;hurt(15,"Venom got the better of you.");return "You crush the herbs into the wound. It burns, then slowly eases."}},
+  {l:"Cut out the venom with a sharp stone",ok:()=>v().stone>0,run(){if(Math.random()<.6){hurt(20,"Venom got the better of you.");return "It is ugly and painful, but you get most of the venom out."}hurt(50,"Venom got the better of you.");return "You cut too late. The venom has already spread, and you shake with fever."}},
+  {l:"Smear on the herbal salve",ok:()=>v().salve>0,run(){v().salve--;hurt(3,"Venom got the better of you.");return "You work the salve into the bite. The swelling goes down within the hour."}}],
+  bare:{l:"Wait and hope",run(){hurt(55,"Venom got the better of you.");return "Your leg swells and burns. You lie shaking for hours before the worst passes."}}},
+ {id:"brushfire",title:"Smoke in the trees",text:"The dry heat has caught. Flames are crawling through the brush toward you, and the smoke is thick.",opts:[
+  {l:"Douse the flames with water from bottles",ok:()=>v().water>=2,run(){v().water-=2;return "You soak the fire's edge again and again until it dies in the wet ground."}},
+  {l:"Beat it down with wet wood",ok:()=>S.ring&&v().wet>=2,run(){v().wet-=2;return "You beat the flames down with soaked branches. The stone ring holds the line."}},
+  {l:"Wade into the lake until it passes",ok:()=>S.looks>=3,run(){hurt(10,"The fire consumed you.");return "You crouch in the lake while the fire roars past. You are scorched but alive."}}],
+  bare:{l:"Beat it out with your hands",run(){hurt(45,"The fire consumed you.");v().wood=Math.floor(v().wood/2);return "You stamp and slap at the flames until they die. You are badly burned, and half your wood has gone up."}}}
+];
+const DEV=[
+ {id:"animal",title:"Something is at the shelter",text:"Claws rake the wall. A large animal is trying to get at your camp and your food.",opts:[
+  {l:"Defend the shelter with your weapon",ok:()=>weap(),run(){return "You drive it back with hard, sharp thrusts. It melts into the dark, wounded and angry."}},
+  {l:"Fire the pistol",ok:()=>gun(),run(){v().ammo--;return "The shot cracks across the clearing. Whatever it was is gone."}},
+  {l:"Drive it off with a burning brand",ok:()=>v().stick>0&&fireLit()&&S.fl>=2,run(){return "You thrust a flaming stick at its face. It recoils and slinks away."}},
+  {l:"Shake the alarm rattle",ok:()=>v().rattle>0,run(){v().rattle--;return "The racket startles it. It bolts into the trees."}},
+  {l:"Hold behind the spiked fence",ok:()=>S.fence>=1,run(){return "The spikes point outward and the animal will not risk them. It circles once and slinks off."}},
+  {l:"Hold the elevated shelter",ok:()=>S.sh>=4,run(){return "It cannot reach you up on the stilts. After a while it gives up and wanders off."}}],
+  bare:{l:"Defend the shelter with whatever you can grab",run(){hurt(35,"The animal mauled you.");if(S.dead)return "";const k=Object.keys(FOOD).filter(x=>v()[x]>0);if(k.length&&!S.stash)v()[pick(k)]=0;let m="You swing a branch and scream until it flees, but not before it mauls you and rips into your food.";if(S.sh>0){S.sh--;m+=" Your shelter is damaged and drops a level."}return m}}},
+ {id:"noises",title:"Strange noises",text:"Something is moving beyond the trees. Rustling, then a low, drawn-out sound you cannot place.",opts:[
+  {l:"Go and check what is happening",ok:()=>true,run(){const r=Math.random();if(r<.45){S.fatigue=clamp(S.fatigue+3);return "You creep out and find two monkeys squabbling over a coconut. Nothing to fear."}if(r<.75){const k=pick(FIND);v()[k]++;return "You trace the sound to a scrap of wreckage creaking in the wind, caught on a branch. Tangled inside is "+FNAME[k]+"."}hurt(12,"Something in the dark killed you.");return "A startled animal bursts from the brush and rakes your arm before vanishing into the trees."}},
+  {l:"Send the dog ahead to check",ok:()=>S.dog===2,run(){return "Your dog trots off, sniffs around, and returns wagging its tail. A false alarm."}}],
+  bare:{l:"Stay by the fire and ignore it",run(){return "You keep still and listen. After a while, the sounds fade."}}},
+ {id:"dog",title:"An injured dog",text:"A thin, wary dog limps out of the trees, one back leg bloody. It watches you with wet eyes, ready to bolt.",opts:[
+  {l:"Treat the leg with a bandage (heals 30)",ok:()=>v().bandage>0,run(){v().bandage--;S.dog=2;return DOGOK}},
+  {l:"Treat it with the herbal salve (heals 30)",ok:()=>v().salve>0,run(){v().salve--;S.dog=2;return DOGOK}},
+  {l:"Pack the wound with 2 healing herbs (heals 30)",ok:()=>v().herbs>=2,run(){v().herbs-=2;S.dog=2;return DOGOK}}],
+  bare:{l:"Leave it alone",run(){S.dog=1;return "The dog watches you for a while, then limps away. It might come back."}}},
+ {id:"scorpion",title:"Scorpion",text:"A sharp pain stabs your ankle. A scorpion scuttles away from your foot. Your leg is going numb.",opts:[
+  {l:"Treat the sting with a herbal salve",ok:()=>v().salve>0,run(){v().salve--;S.noMove=S.t+120;hurt(4,"The venom stopped your heart.");return "You rub the salve into the sting. The numbness fades faster, but you cannot walk for about 2 hours."}}],
+  bare:{l:"Endure the sting",run(){S.noMove=S.t+240;hurt(8,"The venom stopped your heart.");return "You grit your teeth as the venom spreads. Your legs will not carry you for about 4 hours."}}},
+ {id:"hermit",title:"A stranger at the camp",text:"A gaunt figure stands at the edge of the clearing, wild-haired and ragged. He does not speak. He stares at your food and flinches when you move. He seems lost, perhaps simple, and not a threat.",opts:[
+  {l:"Give him some food",ok:()=>!!hermitFood(),run(){const k=hermitFood();v()[k]--;S.hermit=1;return "He snatches the food and eats it in three bites. Then he gives a slow nod and shuffles off. From now on he will leave wood and forage near your camp every couple of hours."}},
+  {l:"Shoo him away",ok:()=>true,run(){S.hermit=-1;return "You wave your arms. He stumbles back and bolts into the trees. You do not see him again."}}],
+  bare:{l:"Attack him",run(){S.hermit=-1;if(Math.random()<.6){const k=pick(FIND);v()[k]++;return "He cowers and scrambles away, dropping a bundle as he runs. Inside is "+FNAME[k]+"."}hurt(20,"The stranger killed you.");return "He lashes out wildly, scratching and kicking, then bolts into the trees. You are hurt."}}}
+];
+function boarPlan(n,commit){let b=n;const use=[];const v_=v();
+  if(b>0&&S.sh>=4){b--;use.push("your elevated shelter")}
+  const fl=Math.min(S.fence||0,b);if(fl>0){b-=fl;use.push("the spiked fence ("+fl+(fl>1?" levels":" level")+")")}
+  const sp=Math.min(v_.spear||0,b);if(sp>0){b-=sp;use.push(sp+(sp>1?" spears (they break)":" spear (it breaks)"));if(commit){v_.spear-=sp;v_.game+=sp}}
+  const pr=Math.min(gun()?v_.ammo:0,b);if(pr>0){b-=pr;use.push(pr+(pr>1?" pistol rounds":" pistol round"));if(commit)v_.ammo-=pr}
+  if(b>0&&(v_.rattle||0)>0){b--;use.push("the alarm rattle");if(commit)v_.rattle--}
+  return {left:b,use}}
+const BOARD=[[7,1],[9,2],[10,1],[13,3],[18,4],[21,5],[23,7]];
+BOARD.forEach(([d,n])=>EV.push({id:"boar"+d,d,h:14,boars:n,title:n===1?"A wild boar attacks":n+" wild boars attack",
+  get text(){const pl=boarPlan(n,false);return (n===1?"Branches snap. A wild boar, tusks stained with mud, charges into your camp.":"Branches snap and the ground shakes. "+n+" wild boars, tusks stained with mud, charge into your camp.")+" Your defences: "+(pl.use.length?pl.use.join(", ")+".":"none.")+(pl.left>0?(pl.left===1?" That is not enough: one boar would break through.":" That is not enough: "+pl.left+" boars would break through."):" That should hold them off.")},
+  opts:[],bare:{l:n===1?"Face the boar":"Face the boars",run(){const pl=boarPlan(n,true);if(pl.left<=0)return (n===1?"The boar is":"The boars are")+" driven back. You held them off with "+pl.use.join(", ")+".";
+    hurt(40*pl.left,pl.left===1?"The boar gored you. You died.":"The boars trampled you. You died.");if(S.dead)return "";S.injured=true;let fl=0,shl=0,pl2=0;for(let i=0;i<pl.left;i++){if(S.fence>0){const f=Math.min(2,S.fence);S.fence-=f;fl+=f}else{if(S.sh>0){const f=Math.min(2,S.sh);S.sh-=f;shl+=f}if(v().bpot>0&&Math.random()<.4){v().bpot--;pl2++;S.stored=Math.min(S.stored||0,v().bpot*8)}}}
+    const dmg=(fl?" The boars trample "+fl+(fl>1?" levels":" level")+" of your spiked fence.":"")+(shl?" They tear "+shl+(shl>1?" levels":" level")+" off your shelter.":"")+(pl2?" "+(pl2>1?"Big clay pots are":"A big clay pot is")+" smashed in the chaos.":"");
+    return (pl.use.length?"You hold off some of them with "+pl.use.join(", ")+", but ":"")+(pl.left===1?"one boar crashes":pl.left+" boars crash")+" through. You are badly gored before they finally lose interest and retreat into the trees."+dmg}}}));
+const FOODALL=Object.keys(FOOD).concat(["fish","crab","mussel","fmussel"]);
+function stealFood(n){const u=[];FOODALL.forEach(k=>{for(let i=0;i<(v()[k]||0);i++)u.push(k)});const got=[];for(let i=0;i<n&&u.length;i++){const j=Math.floor(Math.random()*u.length),k=u.splice(j,1)[0];v()[k]--;got.push(k)}return got}
+const MK=got=>got.length?"They scatter with "+tally(got,k=>"1 "+NAME[k].toLowerCase(),k=>NAME[k].toLowerCase())+" in their hands.":"They find nothing worth taking and scatter, screeching.";
+EV.push({id:"gale",get d(){return S.windD},get h(){return S.windH},title:"A strong wind",text:"A violent gust rips through the clearing, scattering embers and flattening your fire.",opts:[],bare:{l:"Shield the fire",run(){if(!fireLit())return "A violent gust rips through the clearing. With no fire burning, there is nothing for it to blow out.";const a=fireLvl();S.fireEnd-=360;if(S.fireEnd<=S.t){S.fireEnd=S.t;S.fl=0;return "The gust howls through the camp and knocks your "+FN[a]+" down four levels. It sputters and goes out."}S.fl=fireLvl();return "The gust howls through the camp and knocks your fire down four levels, from "+FN[a]+" to "+FN[fireLvl()]+". Feed it quickly."}}});
+EV.push({id:"monkey2",d:2,h:13,monkeys:2,title:"Monkeys steal your food",text:"A pair of monkeys swings out of the trees and darts through your camp. You are too slow to stop them.",opts:[],bare:{l:"Watch them go",run(){let m="";for(let i=0;i<2;i++){const h=hitStash();if(h&&h.broke)m=" They tear your wooden stash apart as they go."}const got=stealFood(2);return "They snatch what they can and vanish into the canopy. Nothing could have stopped them. "+MK(got)+m}}});
+function monkeyAttack(n){if(n<=0)return "";let blocked=0,broke=false,got=[];for(let i=0;i<n;i++){const h=hitStash();if(h){blocked++;if(h.broke)broke=true}else got=got.concat(stealFood(1))}
+  if(blocked===n&&!broke)return "The monkeys tug at your wooden stash, screech at the lid, and give up. Your food is safe.";
+  if(blocked===n)return "The monkeys wrench at your wooden stash until the lid splinters and the boards fall apart. Your food was safe this time, but the stash is gone.";
+  if(blocked>0)return "The monkeys beat at your wooden stash"+(broke?" until it falls apart":"")+", and the last of them slips past and grabs what it can. "+MK(got);
+  return "You can only watch as they ransack your supplies. "+MK(got)}
+const rattleChance=()=>Math.max(0,.5-.1*(S.rattleUse||0));
+[4,8,12,16,20,24].forEach(d=>EV.push({id:"monkey"+d,d,h:13,monkeys:3,title:"Monkey raid",text:(d===4?"A troop of monkeys drops out of the trees and swarms your camp. They have spotted your food and they are not shy.":"The monkeys are back, hooting from the branches. They move toward your food."),opts:[
+  {get l(){return "Shake the alarm rattle ("+Math.round(rattleChance()*100)+"% to scare them off)"},ok:()=>v().rattle>0&&rattleChance()>0,run(){const c=rattleChance();S.rattleUse=(S.rattleUse||0)+1;if(Math.random()<c)return "The rattle sends the whole troop shrieking back into the trees. They take nothing. The rattle will scare them a little less next time.";return "The rattle clatters, but the monkeys are not scared this time. "+monkeyAttack(3)}},
+  {l:"Fire the pistol into the air",ok:()=>gun(),run(){v().ammo--;return "The crack of the shot scatters the whole troop. They take nothing."}},
+  {l:"Throw stones (10% each to scare a monkey)",ok:()=>v().stone>0,run(){const t=Math.min(v().stone,3);v().stone-=t;let sc=0;for(let i=0;i<t;i++)if(sc<3&&Math.random()<.1)sc++;const lead="You throw "+(t===1?"a stone":t+" stones")+". "+(sc?(sc===1?"One monkey bolts.":sc+" monkeys bolt.")+" ":"None of them flinch. ");return lead+(sc>=3?"The troop is gone and takes nothing.":monkeyAttack(3-sc))}}],
+  bare:{l:"Watch them",run(){return monkeyAttack(3)}}}));
+const ALLEV=EV.concat(REV,DEV);
+const MINOR=[
+ {ok:()=>S.loc==="beach",run(){const k=pick(["rope","bottle","flint","stick"]);v()[k]++;return "A wave drags a battered crate onto the sand. Wedged in the slats you find "+({rope:"a coil of rope",bottle:"an empty bottle",flint:"a flintstone",stick:"a straight stick"})[k]+"."}},
+ {ok:()=>S.loc==="beach",run(){hurt(2,"A crab got the better of you.");return "A crab clamps onto your toe and scuttles away. It stings."}},
+ {ok:()=>S.loc==="beach",run(){return "Far out, a ship's light flickers on the horizon, then fades. Nobody saw you."}},
+ {ok:()=>S.loc==="beach"&&!S.done.msgbottle,run(){S.done.msgbottle=true;v().bottle++;return "A bottle rolls in with the tide. There is a water-stained note inside, too faded to read. The bottle is yours now."}},
+ {ok:()=>S.loc==="camp",run(){v().coconut++;return "A coconut thuds down beside you. A free meal."}},
+ {ok:()=>S.loc==="camp",run(){return "A small bird hops close, studies you, and flies off."}},
+ {ok:()=>S.loc==="camp",run(){S.fatigue=clamp(S.fatigue-4);return "A cool breeze moves through the clearing. You breathe easier."}},
+ {ok:()=>S.loc==="stream",run(){return "A kingfisher flashes over the water and comes up with a fish."}},
+ {ok:()=>S.loc==="stream",run(){v().clay++;return "The bank slumps under your foot and shows a seam of grey clay. You scoop a lump."}},
+ {ok:()=>S.loc==="stream",run(){S.thirst=clamp(S.thirst-8);return "You splash your face and drink a few cool handfuls."}},
+ {ok:()=>true,run(){hurt(3,"A fall finished you.");return "You catch your foot on a root and go down hard. Scraped palms, bruised pride."}},
+ {ok:()=>S.looks>=2&&Math.random()<.1,run(){return "You find old footprints, half washed away. Someone was here, once."}},
+ {ok:()=>true,run(){S.fatigue=clamp(S.fatigue+3);return "The air goes thick and still. You feel it in your legs."}},
+ {ok:()=>S.looks>=3&&S.loc!=="stream",run(){if(S.loc!=="cave"&&Math.random()>=.1)return "You notice a patch of low leaves, but they are withered and bitter. Nothing worth taking.";v().herbs++;return "You notice a patch of low leaves with a sharp, clean smell. You pick some for later."}}
+];
+function finish(){
+  syncB();
+  if(!S.dead){const inj=100-S.health;
+    if(inj>=40&&!S.injHi){S.injHi=true;if(!S.fever&&Math.random()<.4){S.fever=true;S.feverFade=0;NEWS.push("Your wound burns and you are shaking. You have a fever. Everything costs more effort, and rest and food restore less.")}}
+    else if(inj<40)S.injHi=false;
+    if(S.fever){if(inj>=40)S.feverFade=0;else if(!S.feverFade){S.feverFade=S.t+180;NEWS.push("Your wound is easing, but the fever lingers. It should fade in about 3 hours.")}else if(S.t>=S.feverFade){S.fever=false;S.feverFade=0;NEWS.push("The fever has broken.")}}}
+  if(S.doom==="camp"&&!S.dead)say(null,"Everything is pitch black and cold. You hear a rustling sound around you.");
+  if(!S.dead&&!S.lost&&S.loc!=="camp"&&(S.t%1440>=1195||S.t%1440<300)&&!(isNight()&&S.inv.torch>0)){S.lost=true;S.lostN=0;say(null,"You cannot see anything around you. You spot the light coming from your camp.")}
+  if(HG.w){const it=Object.keys(HG.items).map(k=>HG.items[k]+" "+NAME[k].toLowerCase()).join(", ");NEWS.push("Your visitor left "+HG.w+" wood"+(it?" and "+it:"")+" near the camp.");HG={w:0,items:{}}}
+  if(!S.dead&&!S.ev&&!isNight()&&Math.random()<.14){const c=MINOR.filter(m=>m.ok());if(c.length)NEWS.push(pick(c).run())}
+  if(NEWS.length){S.text+=" "+NEWS.join(" ");NEWS.length=0}
+  if(!S.dead){
+    if(S.t>=(GOAL-1)*1440+720)S.won=true;
+    else if(!S.ev&&!S.doom){const e=EV.find(e=>!S.done[e.id]&&S.t>=(e.d-1)*1440+e.h*60);if(e)S.ev=e.id;else{const r=(S.rs||[]).find(x=>!S.done[x.id]&&S.t>=(x.day-1)*1440+x.h*60);if(r)S.ev=r.id;else if(S.pend){S.ev=S.pend;S.pend=null}}}
+  }
+  save();render()
+}
+function resolve(e,o){confirmReset=false;S.done[e.id]=true;S.ev=null;const r=o.run();if(!S.dead)spend(10,3);if(!S.dead)say(e.title,r||"You survive.");finish()}
+
+function actions(){
+  const A=[],add=(l,c,f)=>A.push({l,c,f}),night=isNight(),tired=S.fatigue>=85,fog=wxOn("fog"),L=S.loc,s=S.inv;
+  const ok=!night&&!tired&&!fog,canOut=!tired&&(!night||s.torch>0),tr=!night||s.torch>0,tl=night?" · torch · 20% risk":"";
+  const venture=()=>{if(!night)return false;s.torch--;if(Math.random()<.2){die(BEAST,true);return true}return false};
+  if(S.doom==="camp"){add("Stay still","",()=>{S.doom=false;darkDeath=true;die(BEAST,true)});add("Listen closer","",()=>{S.doom=false;darkDeath=true;die(BEAST,true)});A.crafts=[];return A}
+  if(S.lost&&S.doom){add("Move towards the direction of the camp","",()=>{S.doom=false;darkDeath=true;die(BEAST,true)});A.crafts=[];return A}
+  if(S.lost){add("Head towards the light","25 min · +10 hypothermia",()=>{
+    tick(25);S.fatigue=clamp(S.fatigue+2);if(S.dead)return;
+    S.cold=clamp((S.cold||0)+10);if(S.cold>=100){die("You die of hypothermia.",true,"cold");return}
+    if(Math.random()<.2){S.doom=true;say(null,"Everything is pitch black.");return}
+    S.lostN=(S.lostN||0)+1;
+    if(S.lostN>=5){S.lost=false;S.lostN=0;S.loc="camp";say(null,"You stumble out of the dark and into the warm glow of your camp. The fire is still burning.")}
+    else say(null,"You push on through the dark, branches clawing at your arms. The light flickers ahead. "+(5-S.lostN)+(5-S.lostN===1?" more push":" more pushes")+" to go.")});
+    A.crafts=[];return A}
+  if(S.looks<3&&ok)add("Look around","20 min",()=>{
+    spend(20,5);const n=S.looks++;
+    if(n===0){const k=pick(["rope","metal","flint","lens"]);s[k]++;say(null,"You seem to be in an inhabited area. Among the debris on the sand you find "+{rope:"a length of rope.",metal:"a piece of metal.",flint:"a piece of flint.",lens:"a curved piece of glass lens. Held up to the sun, it could light a fire."}[k])}
+    else if(n===1)say("A place to make camp","You follow a trail inland and find a sheltered clearing. It looks like a suitable place to make camp.");
+    else{s.coconut+=2;say("Running water","Past the clearing you hear water: a clear freshwater lake. Fallen coconuts lie beneath the palms. You take two.")}
+  });
+  const forageRun=(mode)=>{if(venture())return;fxK="leaf";
+    const f0=fLvl(),[fa,fb]=FY[f0-1],k=fa+Math.floor(Math.random()*(fb-fa+1)),tm=fMin(L);S.fTaps++;spend(tm,6*.7);
+    const up=fLvl()>f0?" Your foraging improved to level "+fLvl()+(fMin(L)<tm?". It now takes "+fMin(L)+" minutes.":"."):"";
+    const T={wood:"a piece of driftwood",bottle:"an empty bottle",crab:"a crab",mussel:"a cluster of mussels",flint:"a flintstone",metal:"a piece of metal",pot:"a battered cooking pot",axe:"a rusted but sound axe",saw:"a hand saw with good teeth",hammer:"a heavy claw hammer",pistol:"a small pistol with 3 rounds",rations:"a sealed tin of rations",magnifier:"a magnifying glass",tinder:"a bundle of dry tinder",coconut:"a coconut",stone:"a sharp stone",rope:"a length of rope",stick:"a sturdy stick",sailcloth:"a torn piece of sailcloth",banana:"a bunch of ripe bananas",mango:"a ripe mango",guava:"a few guavas",nuts:"a handful of forest nuts",berries:"some wild berries",mushroom:"an unknown mushroom",vine:"a tough vine",timber:"a length of dry timber",aloe:"an aloe leaf",fmussel:"freshwater mussels",crayfish:"a few crayfish",watercress:"a bunch of watercress",reeds:"a bundle of reeds",clay:"a lump of river clay",herbs:"some healing herbs"},got=[];
+    const tbl={beach:["wood","wood","wood","bottle","bottle","crab","crab","mussel","mussel","flint","flint","metal","pot","coconut","stone","stone","rope","stick","sailcloth","sailcloth","magnifier","none","none","none","tinder","tinder","tinder"],
+      camp:["banana","mango","guava","nuts","berries","mushroom","vine","vine","vine","vine","timber","timber","timber","stick","stick","stick","aloe","aloe","herbs","herbs","stone","stone","none","none","tinder","tinder","tinder","tinder","none","none","none","none","none","none","none","none"],
+      cave:["stone","stone","flint","clay","mushroom","metal","herbs","none","none"],
+      stream:["fmussel","crayfish","watercress","reeds","reeds","reeds","clay","clay","clay","herbs","herbs","stone","stone","stone","none","none","none","none"],
+      river:["fmussel","crayfish","crayfish","watercress","reeds","reeds","clay","clay","herbs","herbs","stone","stone","none","none","none"]}[L];
+    let rareHit=false;for(let i=0;i<k;i++){let it=mode==="stone"?"stone":(L==="beach"?(Math.random()<.4?"none":Math.random()<.111/.6?"wood":pick(["bottle","bottle","crab","crab","mussel","mussel","flint","flint","metal","pot","coconut","stone","stone","rope","stick","sailcloth","sailcloth","magnifier","tinder","tinder","tinder"])):pick(tbl));if(L==="cave"&&mode!=="stone"&&Math.random()<.12){const r=rareFind();if(r){it=r;rareHit=true}}if(it==="herbs"&&L!=="cave"&&Math.random()>=.1)it="none";if((it==="pot"&&s.pot>0)||(it==="magnifier"&&s.magnifier>0))it="none";if(it!=="none"){if(it==="wood")raining()?s.wet++:s.wood++;else s[it]++;if(it==="pistol")s.ammo+=3;got.push(it)}}
+    say(null,(rareHit?"A rare find in the dark! ":"")+(got.length?"You find "+tally(got,k=>T[k],k=>SHORT[k]||NAME[k].toLowerCase())+".":"You search and find nothing useful.")+up);
+  };
+  const gatherRun=()=>{if(venture())return;fxK="wood";
+    const gl=gLvl(),[ga,gb]=GY[gl-1];let n=ga+Math.floor(Math.random()*(gb-ga+1));if(S.fatigue>=70)n=Math.max(ga,n-1);if(s.axe>0)n+=1;
+    const wet=raining();const tm=gMin();if(L==="beach"&&Math.random()>=.1){fxK="";spend(tm,8*.7);say(null,"Tough luck. You look hard, but it's hard to find good wood on a beach.");return}wet?s.wet+=n:s.wood+=n;S.gTaps++;spend(tm,8*.7);
+    say(null,"You collect "+plural(n,"piece")+" of "+(wet?"soaked ":"")+(L==="beach"?"driftwood":"branches")+"."+(wet?" It is wet and will burn poorly.":"")+(gLvl()>gl?" Your wood gathering improved to level "+gLvl()+".":""));
+  };
+  const canF=S.looks>=3&&canOut&&!fog,canG=L!=="stream"&&L!=="river"&&L!=="cave"&&canOut&&!fog,fm=fMin(L);
+  if(L==="beach"&&canF){const sel=[["rand","Random items, tinder · "+fm+" min"+tl],["stone","Stone · "+fm+" min"+tl],["wood","Driftwood · "+gMin()+" min"+tl]];if(s.spear>0)sel.push(["fish","Spear fish · 10 min"+tl]);A.push({l:"Forage",c:"",sel,f:()=>{const el=document.getElementById("pksel"),m=el?el.value:"rand";if(m==="wood")gatherRun();else if(m==="fish"){if(venture())return;spearRun()}else forageRun(m)}})}
+  else{if(canF)add("Forage",fm+" min · "+(L==="camp"?"vines, timber, tinder, some food":L==="cave"?"stone, flint, clay, rare finds":"freshwater finds")+tl,()=>forageRun("rand"));if(canG)add("Gather wood",gMin()+" min"+tl,()=>gatherRun())}
+  const CR=[];
+  const craft=(l,t,c,fat,msg,fn,desc,title)=>{CR.push({l,t,c,desc,tired,ok:can(c)&&!tired,run:()=>{take(c);fn();spend(parseInt(t),fat);say(title||"Crafted",msg)}})};
+  if(!s.bow)craft("Bow drill","60 min",{wood:2,rope:1},5,"You lash a bow together. It is crude, but it should spark.",()=>s.bow=1,"A friction fire starter. Works, but not every time.");
+  if(!s.firestarter)craft("Flint and steel","20 min",{flint:1,metal:1},2,"You strike the flint against the metal. Sparks fly. This will light a fire reliably.",()=>s.firestarter=1,"Flint and metal. The most reliable way to start a fire.");
+  if(s.spear<3)craft("Spear","45 min",{stick:1,stone:1,vine:1},4,"You bind the stone to the stick. A real weapon.",()=>s.spear++,"Kills or repels snakes and prowlers. Repelling a wild boar breaks it.");
+  craft("Torch","15 min",{stick:1,vine:1},2,"You bind dry fibers to a stick head. It will burn for one trip into the dark.",()=>s.torch++,"Lets you travel at night, at a risk. Burns out after one trip.");
+  craft("Trap","40 min",{wood:2,vine:1,stick:1},4,"You fashion a snare trap from wood and vine.",()=>s.trap++,"Catches small game. Place it at camp.");
+  craft("Bandage","10 min",{sailcloth:1,aloe:1},2,"You wrap the cloth around crushed aloe. A proper dressing.",()=>s.bandage++,"Heals 30 health when used.");
+  if(!s.spot)craft("Small clay pot","30 min",{clay:2},4,"You shape a small pot and bake it hard beside the fire. It is sturdy enough to cook in.",()=>{s.spot++;shAnim="cpot";shN=1},"A cooking pot for boiling water and shellfish. It cracks after 10 uses and it cannot store water.","Small clay pot");
+  if(!s.bpot)craft("Big clay pot","50 min",{clay:5},6,"You coil and smooth the clay into a wide, deep pot and bake it hard. It can hold a lot of boiled water.",()=>{s.bpot++;S.bpotMade=true;shAnim="cpot";shN=2},"Stores up to 8 bottles of clean, boiled water at camp.","Big clay pot");
+  craft("Rope","15 min",{vine:3},2,"You twist the vines together and pull them tight. A solid length of rope.",()=>s.rope++,"Twist 3 vines into 1 rope.");
+  craft("Tinder","5 min",{vine:1},1,"You shred the vine into fine fibres and pack them into a dry bundle. Two fire attempts' worth.",()=>s.tinder+=2,"Makes 2 tinder. Each fire attempt uses one and adds 25% to the chance.");
+  craft("Alarm rattle","15 min",{stick:1,stone:2,vine:1},2,"You lash stones and sticks into a noisy rattle. It should scare off an animal.",()=>s.rattle++,"Scares off boars, wild dogs and prowlers. Used up in an emergency.");
+  craft("Herbal salve","10 min",{herbs:2,water:1},2,"You grind the herbs into a paste with a little water. It smells sharp and clean.",()=>s.salve++,"Treats venom bites and fever. Used up in an emergency.");
+  if(!s.tarp)craft("Reed tarp","25 min",{reeds:3,vine:2},3,"You weave the reeds into a thick, rough mat and bind the edges with vine.",()=>s.tarp++,"Covers your camp in a storm or protects gear in a flood. Used up in an emergency.");
+  if(s.brokenaxe)craft("Repair the axe","30 min",{brokenaxe:1,stick:1,vine:2},3,"You fit a new handle and bind it tight. The axe is whole again.",()=>s.axe=1,"Cuts fallen trees and adds 1 wood to every wood gathering.");
+  if(s.brokensaw)craft("Repair the saw","30 min",{brokensaw:1,stick:1,rope:1},3,"You lash the blade into a frame. It cuts clean.",()=>s.saw=1,"Cuts the wood needed for shelter building by a quarter.");
+  if(s.brokenhammer)craft("Repair the hammer","20 min",{brokenhammer:1,stick:1,vine:1},2,"You wedge the head onto a new handle. It swings true.",()=>s.hammer=1,"Shelter building takes 60 minutes instead of 90.");
+  if(s.brokenbow)craft("Restring the bow","25 min",{brokenbow:1,vine:2,rope:1},3,"You steam the limb straight and string it. It draws smoothly.",()=>s.hbow=1,"A hunting bow. A weapon in emergencies, and lets you hunt game.");
+  craft("Fish trap","30 min",{stick:2,vine:2},4,"You weave a basket trap from sticks and vine.",()=>s.ftrap++,"Set it in the lake and check it later for fish.");
+  if(L==="camp"){
+    if(!S.lean)craft("Lean-to for the fire","60 min",{wood:3,vine:1},6,"A slanted roof of branches keeps rain off the fire pit.",()=>{S.lean=true;shAnim="lean"},"Protects the fire from rain and slows how fast it burns by 15%.");
+    if(!S.ring)craft("Stone fire ring","30 min",{stone:4},5,"You stack stones into a tight ring. It stops coals and stray sparks from spreading and keeps your fire contained. The fire will burn slower.",()=>{S.ring=true;shAnim="ring"},"Fire burns about 25% slower. Stops coals and stray sparks from spreading and keeps your fire contained.");
+    if(!S.rack)craft("Smoking rack","30 min",{stick:3,vine:2},4,"You lash a rack of sticks above the fire pit. Meat and fish hung here will keep.",()=>{S.rack=true;shAnim="rack"},"Smoke meat and fish over the fire so they do not spoil.");
+    if((S.fence||0)<6){const n=(S.fence||0)+1,FC=[null,{wood:6,stick:3},{wood:8,stick:4,vine:2},{wood:10,stick:5,vine:3},{wood:12,stick:6,rope:1},{wood:14,stick:7,rope:1},{wood:16,stick:8,rope:2}][n];craft("Spiked fence (level "+n+")",(s.hammer>0?"45":"60")+" min",FC,10,"You sharpen stakes and drive them into the ground around the camp. The spikes point outward.",()=>{S.fence=n;shAnim="fence";shN=n},"Each level wards off one attacking wild boar and keeps wild animals away from the shelter.","Spiked fence level "+n)}
+    if(!S.stash)craft("Wooden stash","40 min",{wood:5,vine:2},6,"You lash planks into a sturdy lidded box with a tight latch. Your food will be safe from thieves.",()=>{S.stash=true;shAnim="stash"},"A lidded box that keeps your food safe from monkeys, rats and other thieves. Each attack damages it, and it breaks after 3.");
+    if(!S.catcher)craft("Rain catcher","20 min",{sailcloth:1,vine:2},3,"You stretch the cloth between two stakes with a hollow at the centre. It will gather rain.",()=>{S.catcher=true;shAnim="catcher"},"Collects rainwater while it rains. Holds up to 6.");
+    const sunny=hour()>=8&&hour()<17&&!raining();
+    const TL=[];
+    if(s.magnifier>0&&sunny)TL.push(["magnifying glass",.8]);
+    if(s.lens>0&&sunny)TL.push(["glass lens",.5]);
+    if(s.firestarter>0)TL.push(["flint and steel",.55]);
+    if(s.bow>0)TL.push(["bow drill",.3]);
+    if(s.flint>0)TL.push(["flint",.25]);
+    TL.sort((a,b)=>b[1]-a[1]);
+    const tool=TL[0],st=tool?tool[1]:0,ch=Math.max(.05,Math.min(.95,st*(S.fatigue<50?1:.75)+(s.tinder>0?.25:0)+(s.timber>0?.05:0)-(raining()&&!S.lean?.2:0)-(wxOn("wind")?.25:0)));
+    if(st>0&&!fireLit()&&can({wood:2})&&!tired)add("Start a fire","5 min · 2 wood · "+tool[0]+(s.tinder>0?" + tinder":"")+(s.timber>0?" + timber":"")+" · "+Math.round(ch*100)+"%",()=>{
+      const good=Math.random()<ch;if(s.tinder>0)s.tinder--;if(s.timber>0)s.timber--;spend(5,1);const lensUsed=tool[0]==="glass lens";if(lensUsed&&!S.lensT)S.lensT=S.t+60;
+      if(good){take({wood:2});S.fl=1;S.fireEnd=S.t+25;say("Fire","Smoke curls up, then flame. Your Tinder Spark will burn for only 25 minutes. Feed it quickly."+(lensUsed?" After using the glass lens, you put the lens aside, admiring the flame.":""))}
+      else say(null,"The spark dies before it catches. Try again.")
+    });
+    if(fireLit()&&fireLvl()<8){const n=fireLvl()+1,c={wood:fireLvl()<=2?2:1};if(can(c))add("Add wood to the fire","5 min · "+costStr(c),()=>{take(c);S.fireEnd+=90;spend(5,1);S.fl=fireLvl();say(null,"You feed the fire. It grows into a "+FN[S.fl]+".")})}
+    if(S.sh<5){const n=S.sh+1;craft(SHN[n],(s.hammer>0?"60":"90")+" min",shelterCost(n),12,SHM[n],()=>{S.sh=n;shAnim=n},SHD[n],"Shelter level "+n)}
+    if(s.trap>0&&S.placed.length<3)add("Place a trap","15 min",()=>{s.trap--;S.placed.push(S.t);spend(15,2);say(null,"You set the snare near an animal trail.")});
+    if(S.placed.some(p=>S.t-p>=180))add("Check traps","15 min",()=>{
+      const got=[];S.placed=S.placed.map(p=>{if(S.t-p>=180){if(Math.random()<.3)got.push(catchOne(ANI));return S.t}return p});const c=got.reduce((a,x)=>a+x.meat,0);
+      s.game+=c;spend(15,2);say(null,got.length?"The trap held "+joinList(got.map(dscr))+(got.length>1?". That is "+c+" meat in all.":"."):"The traps are empty. You reset them.")});
+  }
+  const av=CR.filter(c=>c.ok);
+  if(av.length&&CR.length===1)add("Craft "+av[0].l.toLowerCase(),av[0].t+" · "+costStr(av[0].c),av[0].run);
+  else if(av.length){add("Craft",av.length+" available",()=>{craftOpen=true});A[A.length-1].ui=true}
+  const wat=L==="stream"||L==="river",W=L==="river"?"river":"lake";
+  if(wat&&s.bottle>s.water+s.rawwater)add("Fill bottles","10 min",()=>{s.rawwater+=s.bottle-s.water-s.rawwater;spend(10,0);say(null,"You fill your bottles from the "+W+". The water looks clear, but it is not safe to drink until it is boiled.")});
+  if(wat&&S.thirst>=15)add("Drink from the "+W,"no time · unboiled, risky",()=>{S.thirst=clamp(S.thirst-45);if(Math.random()<.6){S.fatigue=clamp(S.fatigue+15);hurt(12,"Sickness from the unboiled water finished you.");say(null,"The water goes down cold, but your stomach twists within the hour. You feel sick and weak.")}else say(null,"You drink until you are full. Your stomach holds, this time.")});
+  if(L==="camp"&&(s.pot>0||s.spot>0)&&s.rawwater>0&&fireLit())add("Boil water","15 min"+cookPotLabel(),()=>{s.water+=s.rawwater;s.rawwater=0;useCookPot();spend(15,1);say(null,"You boil the water in the pot until it rolls. Now it is safe to drink.")});
+  const pcap=(s.bpot||0)*8,pst=S.stored||0;
+  if(L==="camp"&&pcap>0&&s.water>0&&pst<pcap)add("Store clean water in the clay pot","5 min",()=>{const n=Math.min(s.water,pcap-pst);s.water-=n;S.stored=pst+n;spend(5,0);say(null,"You pour "+plural(n,"bottle")+" of clean water into the clay pot. It holds "+S.stored+" of "+pcap+".")});
+  if(L==="camp"&&pst>0&&S.thirst>=15)add("Drink from the clay pot","5 min",()=>{S.stored--;S.thirst=clamp(S.thirst-45);spend(5,0);say(null,"Cool, clean water from the clay pot.")});
+  if(L==="camp"&&pst>0&&s.bottle>s.water+s.rawwater)add("Fill a bottle from the clay pot","5 min",()=>{S.stored--;s.water++;spend(5,0);say(null,"You fill a bottle from the clay pot.")});
+  if(raining()&&L!=="cave"&&S.thirst>=15)add("Drink from the rain","5 min",()=>{S.thirst=clamp(S.thirst-30);spend(5,0);say(null,"You tilt your head back and catch the rain. It is clean and cold.")});
+  if(L!=="stream"&&s.water>0&&S.thirst>=15)add("Drink from a bottle","5 min",()=>{s.water--;S.thirst=clamp(S.thirst-45);spend(5,0);say(null,"You swallow every drop.")});
+  const spearRun=()=>{const l0=sLvl();spend(10,2);S.sTaps=(S.sTaps||0)+1;const lv=l0,r=Math.random();let n=0;
+    if(lv===1)n=r<.2?1:0;else if(lv===2)n=r<.4?1:0;else if(lv===3)n=r<.6?1:0;else if(lv===4)n=r<.2?0:r<.68?1:2;else n=r<.2?0:r<.6?1:r<.84?2:3;
+    const got=[];for(let i=0;i<n;i++)got.push(catchOne(L==="beach"?FISH_SEA:FISH_FW));const c=got.reduce((a,x)=>a+x.meat,0);s.fish+=c;
+    const up=sLvl()>l0?" Your spear fishing improved to level "+sLvl()+".":"";
+    say(null,(got.length?"You "+(L==="beach"?"stand in the shallows":"wade in")+" and spear "+joinList(got.map(dscr))+(got.length>1?". That is "+c+" fish meat in all.":"."):"The fish scatter. You come up empty.")+up)};
+  if(wat&&s.spear>0&&canOut&&!fog)add("Spear fish","10 min"+tl,()=>{if(venture())return;spearRun()});
+  if(L==="beach"&&S.supply&&!night&&!tired&&!fog)add("Search the washed-up supplies","20 min",()=>{S.supply=0;spend(20,4);const n=2+Math.floor(Math.random()*2),got=[];for(let i=0;i<n;i++){const k=pick(FIND);s[k]++;got.push(k)}say("Washed-up supplies","You pull a half-buried crate from the surf. Inside you find "+tally(got,k=>FNAME[k],k=>FNAME[k].replace(/^(a|an) /,""))+".")});
+  if(L==="beach"&&S.drift&&!night&&!tired&&!fog)add("Collect the washed-up driftwood","25 min",()=>{S.drift=0;const n=3+Math.floor(Math.random()*5);if(raining())s.wet+=n;else s.wood+=n;spend(25,7);say(null,"You drag "+plural(n,"piece")+" of seasoned driftwood up the beach.")});
+  if(L==="camp"&&S.berries>0&&!night&&!tired&&!fog)add("Pick berries by the fallen log","15 min",()=>{S.berries--;const n=2+Math.floor(Math.random()*2);s.berries+=n;spend(15,3);say(null,"You fill your hands with "+plural(n,"handful")+" of ripe berries."+(S.berries?"":" The bushes are picked clean."))});
+  if(L==="camp"&&S.riverHint&&!S.river&&!night&&!tired&&!fog)add("Explore the area for a river stream","30 min",()=>{spend(30,10);if(Math.random()<.6){S.river=true;say("A river stream","Following the sound through the ferns, you find a fast, shallow river running over smooth stones. You can go there from camp now.")}else say(null,"You push through thick undergrowth but find only dry ground. Maybe try again.")});
+  if(L==="camp"&&S.caveHint&&!S.cave&&!night&&!tired&&!fog)add("Explore the area for a cave","30 min",()=>{spend(30,10);if(Math.random()<.6){S.cave=true;say("A cave","Behind a curtain of vines you find a cool, dry cave mouth in the rock. You can go there from camp now.")}else say(null,"You search the rocks and ravines but find only bare stone. Maybe try again.")});
+  if(L==="camp"&&S.tree&&!night&&!tired&&!fog){
+    if(s.axe>0)add("Cut the fallen tree","40 min",()=>{S.tree=false;const n=3+Math.floor(Math.random()*3);s.wood+=n;s.timber++;spend(40,10);say(null,"You swing the axe until the trunk splits. The path to the lake is clear, and you stack "+n+" logs and a length of dense timber.")});
+    if(S.fatigue<=25)add("Heave the fallen tree aside","60 min · uses 60 fatigue",()=>{S.tree=false;spend(60,75);say(null,"You brace your back against the trunk and heave until it rolls clear. Your whole body is shaking.")});
+  }
+  if((L==="camp"||L==="beach")&&s.hbow>0&&canOut)add("Hunt with the bow","60 min"+tl,()=>{if(venture())return;spend(60,9);const g=Math.random()<.5?1+Math.floor(Math.random()*2):0;s.game+=g;say(null,g?"Your arrow finds its mark. You carry back "+plural(g,"game animal")+".":"You track a rustle through the brush, but the shot goes wide.")});
+  if(wat&&s.ftrap>0&&S.fplaced.length<2)add("Set fish trap","15 min",()=>{s.ftrap--;S.fplaced.push(S.t);spend(15,2);say(null,"You wedge the trap between two rocks where the current slows.")});
+  if(wat&&S.fplaced.some(p=>S.t-p>=180))add("Check fish traps","15 min",()=>{const got=[];S.fplaced=S.fplaced.map(p=>{if(S.t-p>=180){if(Math.random()<.35){const n=1+Math.floor(Math.random()*2);for(let i=0;i<n;i++)got.push(catchOne(FISH_FW))}return S.t}return p});const c=got.reduce((a,x)=>a+x.meat,0);s.fish+=c;spend(15,2);say(null,got.length?"The traps hold "+joinList(got.map(dscr))+(got.length>1?". That is "+c+" fish meat in all.":"."):"The traps are empty. You reset them.")});
+  if(L==="camp"&&S.catcher&&S.catch>0&&S.thirst>=15)add("Drink rainwater","5 min",()=>{S.catch--;S.thirst=clamp(S.thirst-45);spend(5,0);say(null,"Cool rainwater from the catcher.")});
+  if(L==="camp"&&S.catcher&&S.catch>0&&s.bottle>s.water)add("Bottle rainwater","5 min",()=>{const n=Math.min(S.catch,s.bottle-s.water);S.catch-=n;s.water+=n;spend(5,0);say(null,"You pour "+plural(n,"bottle")+" of rainwater.")});
+  const CK={game:["cgame","game meat"],snake:["csnake","snake meat"],fish:["cfish","fish"],crayfish:["ccrayfish","crayfish"],mushroom:["cmushroom","mushroom"]},ckHave=Object.keys(CK).filter(k=>s[k]>0);
+  if(L==="camp"&&fireLit()&&ckHave.length){const opts=ckHave.map(k=>[k,CK[k][1][0].toUpperCase()+CK[k][1].slice(1)+" ×"+s[k]]);if(ckHave.length>1)opts.unshift(["all","Cook everything"]);
+    A.push({l:"Cook food",c:"15 min",cook:opts,f:()=>{const el=document.getElementById("cooksel"),sl=el?el.value:"all",ks=(sl==="all"||!CK[sl])?ckHave:[sl].filter(k=>s[k]>0);if(!ks.length)return;
+      const nm=ks.map(k=>CK[k][1]),did=nm.length>1?nm.slice(0,-1).join(", ")+" and "+nm[nm.length-1]:nm[0],CFT=["Your meal of {f} sizzles over the flames. Your stomach growls so loudly that you laugh out loud, for the first time in days.","Fat spits and pops over the fire: {f}, browning slowly. Your mouth waters and you can barely wait.","You turn the sticks slowly over the coals, the {f} dripping. The smell makes your eyes sting with something close to tears.","Cooking {f} on the sticks, you listen to the crackle. For a moment you forget you are stranded.","Smoke curls around the sticks of {f}. You close your eyes and picture a warm table and familiar faces.","You poke at the sticks of {f} impatiently. Your hands shake with hunger.","The edges of the {f} darken and curl. Your patience wears thin, but you make yourself wait.","A savoury smell drifts up from the {f}. Your tired shoulders loosen a little.","You hold the {f} over the fire. The heat on your face feels almost like comfort.","Juices from the {f} hiss as they drip into the flames. You are hungry, wary, and strangely proud of the meal you have made."];
+      ks.forEach(k=>moveB(k,CK[k][0]));spend(15,1);say("Cooked on the fire",pick(CFT).replace("{f}",did)+" It will fill you more now.")}})}
+  if(L==="camp"&&S.lean&&s.wet>0&&fireLit())add("Dry wet wood by the fire","5 min",()=>{S.dryN=(S.dryN||0)+s.wet;s.wet=0;spend(5,1);say(null,"You stack the damp wood beside the fire under the lean-to. It will dry in time.")});
+  if(S.fever&&s.salve>0)add("Use herbal salve","5 min",()=>{s.salve--;S.fever=false;S.health=clamp(S.health+10);spend(5,0);say(null,"You swallow the bitter salve and sweat it out. The fever breaks.")});
+  if(S.dog===2&&S.dogHurt&&(s.herbs>0||s.bandage>0||s.salve>0))add("Treat the dog's bruise","10 min · "+(s.herbs>0?"1 herbs":s.bandage>0?"1 bandage":"1 herbal salve"),()=>{if(s.herbs>0)s.herbs--;else if(s.bandage>0)s.bandage--;else s.salve--;S.dogHurt=false;spend(10,0);say(null,"You press the dressing to the dog's bruised leg. It licks your hand and soon trots about again.")});
+  if(s.herbs>0&&(S.health<90||S.injured))add("Use herbs","5 min",()=>{s.herbs--;S.injured=false;S.health=clamp(S.health+15);spend(5,0);say(null,"You chew the bitter leaves and press them to the wound.")});
+  if(L==="camp"&&S.rack&&fireLit()&&s.game+s.snake+s.fish>0&&can({wood:1}))add("Smoke food","30 min · 1 wood",()=>{take({wood:1});moveB("game","smokedmeat");moveB("snake","smokedmeat");moveB("fish","smokedfish");spend(30,2);say(null,"You hang strips of meat and fish over the smoke. They darken and dry. They will keep far longer than fresh meat.")});
+  const raw=s.crab+s.mussel+s.fmussel;
+  if(L==="camp"&&raw>0&&(s.pot>0||s.spot>0)&&(s.water>0||s.rawwater>0)&&fireLit())add("Boil shellfish","20 min · 1 water"+cookPotLabel(),()=>{useCookPot();moveB("crab","bcrab");moveB("mussel","bmussel");moveB("fmussel","bmussel");if(s.rawwater>0)s.rawwater--;else s.water--;spend(20,1);say(null,"The pot rolls to a boil over the fire. The shells pop open.")});
+  if(s.bandage>0&&(S.health<90||S.injured))add("Use a bandage","10 min",()=>{s.bandage--;S.injured=false;S.health=clamp(S.health+30);spend(10,0);say(null,"You clean the wound and bind it tight.")});
+  const eatable=Object.keys(FOOD).filter(k=>{const f=FOOD[k];return s[k]>0&&(S.hunger>=Math.max(10,Math.floor(f.h*.6))||(f.t&&S.thirst>=Math.max(10,f.t)))});
+  if(eatable.length)A.push({l:"Eat",c:"5 min",eat:eatable.map(k=>{const f=FOOD[k];return [k,NAME[k]+" ×"+s[k]+" (−"+f.h+" hunger"+(f.t?", −"+f.t+" thirst":"")+(f.f?", −"+f.f+" fatigue":"")+(f.risk?", risky":"")+")"]}),f:()=>{const el=document.getElementById("foodsel"),k=el?el.value:eatable[0],f=FOOD[k];if(!(s[k]>0))return;s[k]--;S.hunger=clamp(S.hunger-f.h);if(f.t)S.thirst=clamp(S.thirst-f.t);spend(5,0);if(f.f)S.fatigue=clamp(S.fatigue-f.f*(S.fever?.7:1));if(f.risk&&Math.random()<f.risk){hurt(f.dmg,"The mushroom was poisonous.");if(!S.dead)say(null,"Your stomach twists and your vision swims. The mushroom was poisonous.")}else say(null,f.m)}});
+  add(S.fatigue>25?"Rest":"Stay still",S.fatigue>25?"60 min":"30 min",()=>{if(S.fatigue>25){const rm=restMult();tick(60);S.fatigue=clamp(S.fatigue-25*rm);if(S.injured&&++S.injRest>=2){S.injured=false;S.injRest=0;NEWS.push("Rest has eased your injury.")}say(null,"You rest your eyes and let your breathing slow."+(rm<1?" The cold keeps you from resting well.":""))}else{tick(30);S.fatigue=clamp(S.fatigue-5*restMult());say(null,"You sit and listen to the sea. Nothing changes.")}});
+  if(L==="camp"&&night)add(night?"Sleep until morning":"Take a nap",night?(S.fireEnd>=dawnT()?"to morning":"fire will die first · "+(day()>10?60:20)+"% risk"):"4 hours",()=>{
+    let m=240;if(night){const h=hour();m=(h<6?6-h:30-h)*60-S.t%60}
+    const fl0=fireLvl(),rest=(night?100:50)*restMult();tick(m,.5,true);S.fatigue=clamp(S.fatigue-rest);if(S.exhaust>0&&!S.dead){S.fatigue=Math.max(S.fatigue,35);S.exhaust--}
+    if(!S.dead){const W=[["You sleep uncomfortably throughout the night. Preying eyes seem to stare at you, lurking in the shadows."],
+      ["You slept a bit uncomfortably, but at least there is a roof above you.","You tossed and turned, but the thin roof kept the worst of the night off you."],
+      ["You slept fairly well. The walls keep out most of the wind.","You slept in fits and starts, but the walls held and you stayed mostly warm."],
+      ["You slept soundly under a sturdy roof. The night chill barely touched you.","A solid roof, a firm wall, and a good night's sleep. You wake feeling steady."],
+      ["You slept deeply, lifted up off the damp ground. The wind passes harmlessly beneath you.","Raised above the ground, you slept dry and warm. You wake feeling truly rested."],
+      ["You slept like a king in your fortified shelter. You wake warm, rested and ready for the day.","Safe behind your strong walls, you slept through the night without a care. You wake refreshed."]];
+      const w=W[Math.min(S.sh,5)];let t=w[Math.floor(Math.random()*w.length)];
+      if(fl0>0){if(!fireLit())t+=" Your fire died out during the night, leaving only cold ashes.";else if(fireLvl()<fl0)t+=" Your fire burned down overnight to a "+FN[fireLvl()].toLowerCase()+"."}
+      say(null,night?t:"You doze for a few hours.")}});
+  const still=S.t<(S.noMove||0)&&!S.lost,go=(to,l,m,mn=20)=>{if(tr&&!still)add(l,mn+" min"+tl,()=>{if(venture())return;spend(mn,2);S.loc=to;say(null,m)})};
+  if(L==="beach"&&S.looks>=2)go("camp","Walk to the clearing","The trail is narrow, but the clearing is just as you left it.");
+  if(L==="camp")go("beach","Return to the beach","Salt wind and surf. The wreckage still lies where it fell.",5);
+  if(L==="camp"&&S.looks>=3&&!S.tree)go("stream","Go to the lake","The trees open onto the lake, bright over the stones.",5);
+  if(L==="camp"&&S.river)go("river","Go to the river stream","The river runs fast and loud over smooth stones. The water looks clear, but you do not trust it.",10);
+  if(L==="river")go("camp","Back to camp","You follow the riverbank back to the clearing.",10);
+  if(L==="camp"&&S.cave)go("cave","Go to the cave","Cool air breathes out of the dark. The cave is dry and quiet.",15);
+  if(L==="cave")go("camp","Back to camp","You duck out of the cave into daylight.",15);
+  if(L==="stream")go("camp","Back to camp","You carry the sound of water back to the clearing.");
+  A.forEach(a=>{if(a.l==="Start a fire"||a.l==="Add wood to the fire")a.q="fire";else if(a.l==="Check traps"||a.l==="Check fish traps")a.q="trap"});
+  A.crafts=CR;return A;
+}
+const rainSoon=()=>{if(raining())return false;for(let m=10;m<=240;m+=10)if(raining(S.t+m))return true;return false};
+function hint(){
+  if(S.lost)return "";
+  if(S.t<(S.noMove||0))return "The scorpion venom has numbed your legs. You cannot move around for about "+Math.max(1,Math.ceil((S.noMove-S.t)/60))+(Math.ceil((S.noMove-S.t)/60)>1?" more hours.":" more hour.");
+  if(S.loc!=="camp"&&hour()>=18&&hour()<20)return "It is getting dark. Staying outside is so dangerous. Get back to camp.";
+  if(S.fatigue>=85)return "You are too exhausted for hard work. Rest.";
+  if(S.thirst>=75)return "Your throat is raw. You need water.";
+  if(S.hunger>=75)return "Your stomach cramps. You need food.";
+  if(!fireLit()&&(hour()>=17||hour()<5))return "Dusk is close. Without a fire, something will find you.";
+  if((hour()>=18||hour()<6)&&fireLit()&&S.fireEnd<dawnT())return "Your fire will not last until morning. Keep adding wood.";
+  if(isNight())return S.inv.torch>0?"It is dark. A torch lets you forage or gather, but the night is dangerous.":"It is too dark to gather or forage. A torch would let you risk it. You can still craft.";
+  if(rainSoon())return "Dark clouds are building.";
+  if(wxOn("fog")&&!isNight())return "Thick fog hides the trail. You cannot explore, forage or gather wood until it lifts.";
+  if(raining()&&fireLit()&&!prot())return "Rain is drowning your fire. Shelter it with a lean-to.";
+  if(raining())return "It is raining. Wood you gather now will be wet.";
+  if(S.cold>30)return "You are shivering. Keep a Cooking Fire (level 4) or better burning at camp to warm up. A sturdier shelter blunts the night chill.";
+  if(S.injured)return "You are injured. Rest, or use a bandage or herbs.";
+  if(S.exhaust>0)return "You are worn down. Sleep may not clear all your fatigue.";
+  if(wxOn("cold")&&fireLvl()<4)return "The cold is bitter. Build the fire up to a Cooking Fire to rest properly.";
+  if(wxOn("heat"))return "The heat is draining you. Keep drinking.";
+  if(S.tree&&S.loc==="camp")return "A fallen tree blocks the trail to the lake.";
+  if(PER.some(k=>(S.bat&&S.bat[k]||[]).some(x=>{const r=x[1]+LIFE[k]-S.t;return r>0&&r<=360})))return "Some of your meat will spoil within 6 hours. Eat it, cook it or smoke it.";
+  if(EV.some(e=>!S.done[e.id]&&day()===e.d-1))return "The island feels restless. Tomorrow could be dangerous.";
+  return "";
+}
+const gauge=(n,x)=>'<div class="g"><span>'+n+"<span>"+Math.round(x)+'</span></span><div class="bar"><i class="'+(x>=85?"crit":x>=65?"hi":"")+'" style="width:'+x+'%"></i></div></div>';
+function btn(a,i){if(a.sel)return '<span class="eatbox"><select id="pksel" aria-label="What to look for">'+a.sel.map(([k,t])=>'<option value="'+k+'">'+t+'</option>').join("")+'</select><button data-i="'+i+'">Forage</button></span>';if(a.cook)return '<span class="eatbox"><select id="cooksel" aria-label="What to cook">'+a.cook.map(([k,t])=>'<option value="'+k+'">'+t+'</option>').join("")+'</select><button data-i="'+i+'">Cook<span class="cost">'+a.c+'</span></button></span>';if(a.eat)return '<span class="eatbox"><select id="foodsel" aria-label="Food to eat">'+a.eat.map(([k,t])=>'<option value="'+k+'">'+t+'</option>').join("")+'</select><button data-i="'+i+'">Eat<span class="cost">'+a.c+'</span></button></span>';return '<button data-i="'+i+'">'+a.l+(a.c?'<span class="cost">'+a.c+'</span>':'')+'</button>'}
+const CATS=["Gather","Craft","Camp","Survive","Move"];
+function cat(l){return /^(Look|Forage|Gather|Spear fish|Collect|Search the|Pick berries|Hunt|Explore)/.test(l)?"Gather":/^(Make|Build a lean|Craft)/.test(l)?"Craft":/^(Start a fire|Boil|Cook|Smoke|Dry|Set fish|Add wood|Build a shelter|Improve|Place|Check)/.test(l)?"Camp":/^(Walk|Return|Go to|Back|Cut the fallen|Heave the fallen)/.test(l)?"Move":"Survive"}
+function table(A){const rows=CATS.map(c=>{const b=A.map((a,i)=>[a,i]).filter(([a])=>cat(a.l)===c);return b.length?'<tr><th>'+c+'</th><td><div class="chips">'+b.map(([a,i])=>btn(a,i)).join("")+'</div></td></tr>':""}).join("");return '<table class="tbl">'+rows+'</table>'}
+function gbtn(a,i){if(a.sel||a.eat||a.cook)return '<div class="gfull">'+btn(a,i)+'</div>';return '<button class="gb" data-i="'+i+'">'+a.l+(a.c?'<small>'+a.c+'</small>':'')+'</button>'}
+function menu(A){
+  const gr=A.map((a,i)=>[a,i]).filter(([a])=>!a.q&&cat(a.l)==="Gather"),mv=A.map((a,i)=>[a,i]).filter(([a])=>!a.q&&cat(a.l)==="Move"),sv=A.map((a,i)=>[a,i]).filter(([a])=>!a.q&&cat(a.l)==="Survive"),box=(n,l)=>l.length?'<fieldset class="mbox"><legend>'+n+'</legend><div class="mrow">'+l.slice().sort((x,y)=>(!!(y[0].eat||y[0].sel||y[0].cook))-(!!(x[0].eat||x[0].sel||x[0].cook))).map(([a,i])=>gbtn(a,i)).join("")+'</div></fieldset>':"",cp=A.map((a,i)=>[a,i]).filter(([a])=>!a.q&&cat(a.l)==="Camp"),
+    subOf=l=>/^(Boil|Cook|Smoke)/.test(l)?"Cooking":/^(Place a trap|Set fish trap)/.test(l)?"Traps":/^Dry/.test(l)?"Wood and fire":"Other",
+    campBox=()=>{if(!cp.length)return "";const parts=["Cooking","Traps","Wood and fire","Other"].map(n=>{const l=cp.filter(([a])=>subOf(a.l)===n);return l.length?'<div class="sub">'+(n==="Other"?"":'<div class="subl">'+n+'</div>')+'<div class="mrow">'+l.map(([a,i])=>gbtn(a,i)).join("")+'</div></div>':""}).join("");return '<fieldset class="mbox"><legend>Camp</legend>'+parts+'</fieldset>'},
+    gs=CATS.filter(c=>!["Gather","Move","Survive","Camp"].includes(c)).map(c=>({c,it:A.map((a,i)=>[a,i]).filter(([a])=>!a.q&&cat(a.l)===c)})).filter(g=>g.it.length);
+  if(openCat&&!gs.some(g=>g.c===openCat))openCat=null;
+  return (gr.length?'<div class="grow">'+gr.map(([a,i])=>gbtn(a,i)).join("")+'</div>':"")+'<div class="menu">'+gs.map(g=>{const dir=g.c==="Craft"&&g.it.length===1&&g.it[0][0].ui,on=openCat===g.c&&!dir;
+    return '<div class="grp"><button class="cat'+(on?' on':'')+'" data-cat="'+g.c+'"'+(dir?' data-i="'+g.it[0][1]+'"':'')+' aria-expanded="'+on+'"><span>'+g.c+'</span><span class="n">'+(dir?g.it[0][0].c:g.it.length)+'</span></button>'+(on?'<div class="subs">'+g.it.map(([a,i])=>btn(a,i)).join("")+'</div>':'')+'</div>'}).join("")+'</div>'+campBox()+box("Survive",sv)+box("Move",mv)}
+function playNotes(){const o=[];
+ o.push(S.sh?"Shelter level "+S.sh+" of 5 · cuts night cold by "+S.sh*20+"%"+(S.sh<3?" · animals can tear it apart":S.sh>=4?" · raised above the flood":""):"No shelter yet");
+ if(S.dog===2)o.push(S.dogHurt?"Dog companion · bruised leg, needs herbs, a bandage or salve":"Dog companion · fetches something every 3 hours of daylight");
+ if(S.cave)o.push("Cave: a dry cave behind the vines, good for stone, flint, clay and rare finds");
+ return o.join("<br>")}
+function feelText(){const L=S.loc,n=isNight(),fl=fireLit(),rn=raining(),h=hour(),d=day(),hot=h>=12&&h<16&&!rn;
+ const sev=[],all=[];const A=(c,t,sv)=>{if(c){all.push(t);if(sv)sev.push(t)}};
+ A(S.lost,"The dark presses in from every side. Every sound is a footstep.",1);
+ A(S.cold>=75,"Your teeth chatter so hard your jaw aches. You can barely feel your fingers.",1);
+ A(S.cold>=50&&S.cold<75,"A deep shiver rolls through you and will not stop.",1);
+ A(S.cold>=25&&S.cold<50,"The chill has crept into your bones.");
+ A(S.fever,"Your skin burns while your hands shake. The world swims at the edges.",1);
+ A(S.injured,"Your wound throbs with every step. You favour the other side.");
+ A(S.health<40,"You feel hollow and unsteady, as if your body is running on nothing.",1);
+ A(S.thirst>=70,"Your tongue sticks to the roof of your mouth. All you can think of is water.",1);
+ A(S.thirst>=40&&S.thirst<70,"Your throat is dry and scratchy. A drink would help.");
+ A(S.hunger>=70,"Your stomach cramps and growls. It is hard to think of anything else.",1);
+ A(S.hunger>=40&&S.hunger<70,"A gnawing emptiness sits in your belly.");
+ A(S.fatigue>=70,"Your legs feel like lead and your eyes keep sliding shut.",1);
+ A(S.fatigue>=40&&S.fatigue<70,"Your muscles ache and a heaviness settles behind your eyes.");
+ A(rn&&!(S.sh>=1||S.lean),"Rain runs down your neck. You long for something dry.");
+ A(rn&&(S.sh>=1||S.lean),"Rain drums on the roof. For now, at least, you are dry.");
+ A(n&&fl,"The fire crackles and pops. Its glow keeps the dark at bay.");
+ A(n&&!fl,"The night is black and cold. You keep glancing over your shoulder.");
+ A(n&&!rn,"The stars are sharp and the surf murmurs. For a moment it is almost peaceful.");
+ A(h>=5&&h<8,"Grey light on the horizon. You survived another night.");
+ A(!n&&!rn&&!hot,"The sun warms your shoulders. The sea glitters, endless and empty.");
+ A(hot,"The midday sun beats down. Sweat stings your eyes.");
+ A(!n&&fl,"Smoke drifts lazily from the fire. It is a small comfort.");
+ A(L==="cave","The cave air is still and damp. Your footsteps echo back at you.");
+ A(L==="beach","Salt wind on your face. You scan the horizon for a sail.");
+ A(L==="stream"||L==="river","The water looks so inviting, but you know better than to drink it raw.");
+ A(d>=20,"Rescue feels close now. You will not give up.");
+ A(d<=3,"It still feels unreal. Only days ago you were on a ship.");
+ A(S.sh>=3,"Your shelter creaks in the wind, but it holds. It almost feels like home.");
+ A(S.dog===2,"The dog presses against your leg, warm and loyal.");
+ A(S.hunger<30&&S.thirst<30&&S.fatigue<30&&(S.cold||0)<25&&S.health>=70,"You feel steady and clear-headed. Today you might just make it.");
+ all.push("You take a slow breath and keep going. One more day.");
+ const pool=sev.length?sev:all;return pool[Math.floor(S.t/60)%pool.length]}
+function locIcon(k){const H='<svg class="lic" viewBox="0 0 38 30" aria-hidden="true"><defs><clipPath id="lc"><rect width="38" height="30" rx="6"/></clipPath></defs><g clip-path="url(#lc)">';
+ if(k==="beach")return H+'<rect width="38" height="30" fill="#bfe1f0"/><rect y="12" width="38" height="8" fill="#3f8fc9"/><path d="M0 14 q4-2 8 0 t8 0 t8 0 t8 0 t8 0" fill="none" stroke="#8cc4e8" stroke-width="1"/><path d="M0 20 q8-3 16 0 t22 0 V30 H0Z" fill="#e6c98e"/><path d="M13 26 q1-8 4-14" fill="none" stroke="#7a5430" stroke-width="2" stroke-linecap="round"/><g fill="#3f7d44"><path d="M17 12 q-6-4-11-1 q6-1 11 1Z"/><path d="M17 12 q-3-6-9-6 q6 1 9 6Z"/><path d="M17 12 q4-6 10-4 q-6 0-10 4Z"/><path d="M17 12 q7-1 11 3 q-5-2-11-3Z"/></g><circle cx="16" cy="13.5" r="1.3" fill="#6b4a2a"/><circle cx="18.4" cy="13.7" r="1.3" fill="#6b4a2a"/></g></svg>';
+ if(k==="stream")return H+'<rect width="38" height="30" fill="#cfe6e3"/><path d="M0 12 q10-6 20-2 t18-1 V30 H0Z" fill="#6f9c5f"/><ellipse cx="19" cy="21" rx="14" ry="6" fill="#4aa0c9"/><path d="M10 21 q4-2 8 0 t8 0" fill="none" stroke="#a6d6ee" stroke-width="1"/><g stroke="#3f6b3c" stroke-width="1.2"><path d="M4 24 v-5M6 24 v-6M32 24 v-5M34 24 v-6"/></g><rect x="30" y="8" width="1.8" height="5" fill="#6b4a2a"/><circle cx="31" cy="7" r="3.5" fill="#3f7d44"/></g></svg>';
+ if(k==="camp")return H+'<rect width="38" height="30" fill="#c9e0c3"/><rect y="16" width="38" height="14" fill="#5f8a63"/><ellipse cx="19" cy="23" rx="9" ry="3.5" fill="#a9c485"/><rect x="5.4" y="12" width="2" height="9" fill="#5a3f27"/><circle cx="6.4" cy="9" r="6" fill="#2f6a3c"/><rect x="30.4" y="11" width="2" height="9" fill="#5a3f27"/><circle cx="31.4" cy="8" r="6.5" fill="#3a7b46"/><circle cx="19" cy="12" r="4.5" fill="#44894e"/><rect x="18.2" y="14" width="1.6" height="5" fill="#5a3f27"/></g></svg>';
+ return""}
+function render(){
+  const app=document.getElementById("app"),d=Math.min(day(),GOAL);
+  {const br=document.getElementById("bgrain");if(br)br.classList.toggle("on",!S.dead&&raining())}
+  const reset=()=>{S=fresh();save();render()};
+  if(S.won){app.innerHTML='<div class="won"><div class="story"><h1>Rescued</h1><p>On day 25 a ship rounds the point and sounds its horn. You walk into the surf, alive.</p></div><div class="actions"><button id="r">Play again</button></div></div>';document.getElementById("r").onclick=reset;return}
+  if(S.dead&&S.dead.kind==="cold"){app.innerHTML='<div class="darkscr coldscr"><p>You have been shivering for hours\u2026</p><p class="l2">You die of hypothermia.</p><div class="dkb" style="animation-delay:4.4s"><button id="r">Start again</button></div></div>';document.getElementById("r").onclick=reset;return}
+  if(S.dead&&darkDeath){darkDeath=false;app.innerHTML='<div class="eyesov" aria-label="Two glaring eyes in the dark"><div class="eyes"><i class="eye"></i><i class="eye"></i></div></div>';setTimeout(render,3100);return}
+  if(S.dead){app.innerHTML='<div class="dead"><div class="story"><h1>You died</h1><p>'+(S.dead.plain?S.dead.msg:S.dead.msg+" You lasted until day "+d+".")+'</p></div><div class="actions"><button id="r">Start again</button></div></div>';document.getElementById("r").onclick=reset;return}
+  const ev=S.ev&&!S.doom&&ALLEV.find(e=>e.id===S.ev),h=hint();
+  const A=ev?ev.opts.filter(o=>o.ok()).concat([ev.bare]).map(o=>({l:o.l,c:"",f:()=>resolve(ev,o)})):actions();
+  if(S.doom==="camp"&&!S.dead){app.innerHTML='<div class="darkscr"><p>You have failed to make a fire, it\u2019s pitch black and you hear a rustling sound and a low growl.</p><div class="dkb">'+A.map((a,i)=>'<button data-i="'+i+'">'+a.l+'</button>').join("")+'</div></div>';app.querySelectorAll(".dkb button").forEach(b=>b.onclick=()=>{A[+b.dataset.i].f();finish()});return}
+  const wet=v().wet?' <small>+'+v().wet+' wet</small>':'';
+  const kinds=Object.keys(NAME).filter(k=>v()[k]||(k==="wood"&&v().wet));
+  const wd='<span class="wood"><small>Wood</small>'+v().wood+wet+"</span>";
+  const homeb='<button class="homebtn" id="home" aria-label="Camp overview" title="Camp overview"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10.5V20h13v-9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 20v-5.5h4V20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>';
+  const top='<span class="rt">'+wd+(kinds.length>1?'<button class="invbtn" id="inv">Open inventory</button>':'')+homeb+"</span>";
+  const qa=ev?[]:A.map((a,i)=>[a,i]).filter(([a])=>a.q),qf=qa.filter(([a])=>a.q==="fire"),qt=qa.filter(([a])=>a.q==="trap");
+  const qbtn=([a,i])=>'<button class="qb" data-i="'+i+'">'+a.l+(a.c?'<small>'+a.c+'</small>':'')+'</button>';
+  const LOCN={beach:"Shipwreck beach",camp:"The clearing",stream:"Freshwater lake",river:"River stream",cave:"The cave"},T0=ev?ev.title:S.title;
+  const wb=wxBadge(),AN={fog:'<span class="fogi" aria-hidden="true"><i></i><i></i></span>',rain:'<span class="drops" aria-hidden="true"><i></i><i></i><i></i></span>',wind:'<span class="gust" aria-hidden="true"><i></i><i></i><i></i></span>',sun:sunSvg(true)},wxh=wb.l?'<div class="wx">'+(AN[wb.a]||"")+wb.l+'</div>':'',tIcon=(isNight()||phase()==="Evening")?moonSvg:sunSvg(false);
+  const locbar='<div class="locbar"><div class="locrow"><div class="loc">'+(S.lost?"":locIcon(S.loc))+(S.lost?"Lost in the dark":LOCN[S.loc])+'</div>'+wxh+'</div>'+(qt.length?'<div class="qrow">'+qt.map(qbtn).join("")+'</div>':'')+'</div>';
+  const fire=fireLit()?'<div class="g fire">'+qf.map(qbtn).join("")+'<div class="ft"><b>'+FN[fireLvl()]+'</b> · '+hm(S.fireEnd-S.t)+' left, until '+clk(S.fireEnd)+(Math.floor(S.fireEnd/1440)>Math.floor(S.t/1440)?' tomorrow':'')+(raining()?(prot()?" · sheltered from rain":" · rain is drowning it"):"")+"</div>"+fireAnim(fireLvl())+"</div>":'<div class="g fire out">'+qf.map(qbtn).join("")+'<div class="ft"><b>No fire</b></div></div>';
+  const items=Object.keys(NAME).filter(k=>v()[k]).map(k=>NAME[k]+(NOC.includes(k)?"":" "+v()[k]));
+  app.innerHTML='<div class="top"><span class="tl">'+tIcon+'Day '+d+" of "+GOAL+" · "+phase()+" · "+clock()+'</span>'+top+"</div>"+
+   '<div class="gauges">'+gauge("Hunger",S.hunger)+gauge("Thirst",S.thirst)+gauge("Fatigue",S.fatigue)+(S.cold>30?gauge("Hypothermia",S.cold):"")+(100-S.health>50?gauge("Injury",100-S.health):"")+(S.fever?'<div class="fev">Fever · fatigue builds faster, rest and food restore less</div>':'')+fire+"</div>"+
+   locbar+'<div class="story" aria-live="polite">'+(T0===LOCN[S.loc]?"":"<h1>"+T0+"</h1>")+"<p>"+(ev?ev.text:S.text)+"</p>"+(h&&!ev?'<p class="note">'+h+"</p>":"")+"</div>"+
+   (ev?'<div class="actions">'+A.map((a,i)=>btn(a,i)).join("")+"</div>":menu(A))+
+   '<details><summary>Player info</summary><div class="gauges" style="border:0">'+gauge("Injury",100-S.health)+"</div>"+
+   '<div class="gauges" style="border:0;padding-top:0">'+gauge("Hypothermia",S.cold||0)+"</div>"+'<p class="inv">Gathering level '+gLvl()+' · Foraging level '+fLvl()+' · Spear fishing level '+sLvl()+'</p><p class="inv">'+playNotes()+'</p><p class="note" style="font-style:italic">'+feelText()+"</p>"+
+   '<button class="reset" id="reset">'+(confirmReset?"Tap again to erase progress":"Start over")+"</button></details>";
+  if(ev&&(ev.boars||ev.monkeys)&&boarSeen!==ev.id){boarSeen=ev.id;shAnim=ev.boars?"boar":"monkey";shN=ev.boars||ev.monkeys}
+  if(shAnim){app.insertAdjacentHTML("beforeend",'<div class="ov shov" id="shov"><div class="pn shpn">'+(typeof shAnim==="string"?buildSvg(shAnim):shelterSvg(shAnim))+'<h2>'+(BT[shAnim]?(typeof BT[shAnim][0]==="function"?BT[shAnim][0]():BT[shAnim][0]):shAnim===1?"Shelter built":"Shelter upgraded to level "+shAnim)+'</h2><p>'+(BT[shAnim]?(typeof BT[shAnim][1]==="function"?BT[shAnim][1]():BT[shAnim][1]):SHD[shAnim])+'</p><small>Tap to continue</small></div></div>');
+    const cl=()=>{shAnim=0;if(shTimer){clearTimeout(shTimer);shTimer=null}render()};document.getElementById("shov").onclick=cl;if(!shTimer)shTimer=setTimeout(cl,4200)}
+  if(fxK){const k=fxK;fxK=null;const bs=[...app.querySelectorAll("button")],want=k==="wood"?"Gather wood":"Forage",bt=bs.find(x=>x.textContent.trim().startsWith(want))||bs.find(x=>/^(Forage|Gather wood)/.test(x.textContent.trim()));
+    if(bt&&!matchMedia("(prefers-reduced-motion:reduce)").matches){const r=bt.getBoundingClientRect(),ic=k==="wood"?'<svg viewBox="0 0 24 24" width="26" height="26"><rect x="3" y="9" width="18" height="7" rx="3.5" fill="#8a6a45"/><circle cx="19" cy="12.5" r="3" fill="#c9a574"/><circle cx="19" cy="12.5" r="1.2" fill="#8a6a45"/></svg>':'<svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 20C4 9 11 4 21 4c0 10-5 17-14 17-1 0-2 0-3-1z" fill="#5d8d50"/><path d="M5 19C9 13 13 10 17 8" stroke="#3b5c34" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+      [0,1,2].forEach(i=>{const e=document.createElement("span");e.className="fxi";e.style.cssText="left:"+(r.left+r.width/2-13+(i-1)*22)+"px;top:"+(r.top+r.height/2-13)+"px;animation-delay:"+(i*.18)+"s";e.innerHTML=ic;e.addEventListener("animationend",()=>e.remove());document.body.appendChild(e)})}}
+  const ib=document.getElementById("inv");if(ib)ib.onclick=()=>{invOpen=true;render()};
+  if(invOpen&&kinds.length<2)invOpen=false;
+  if(invOpen){const row=k=>{const c=k==="wood"?v().wood+(v().wet?" ("+v().wet+" wet)":""):v()[k];return '<div class="it"><b>'+NAME[k]+(NOC.includes(k)?"":" × "+c)+"</b><p>"+DESC[k]+"</p>"+spoilInfo(k)+"</div>"},
+    G=["Food","Materials","Tools"],cnt=g=>kinds.filter(k=>catOf(k)===g).length;
+    if(!cnt(invTab))invTab=G.find(cnt)||"Food";
+    const tabs='<div class="tabs" role="tablist">'+G.map(g=>'<button class="tab'+(g===invTab?' on':'')+'" role="tab" aria-selected="'+(g===invTab)+'" data-t="'+g+'">'+g+' <small>'+cnt(g)+'</small></button>').join("")+'</div>',
+    rows=tabs+'<div class="tbox" role="tabpanel">'+(cnt(invTab)?kinds.filter(k=>catOf(k)===invTab).map(row).join(""):'<p class="empty">Nothing here yet.</p>')+'</div>';
+    app.insertAdjacentHTML("beforeend",'<div class="ov"><div class="pn"><h2>Inventory</h2>'+rows+'<button class="reset" id="x">Close</button></div></div>');document.getElementById("x").onclick=()=>{invOpen=false;render()};app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{invTab=b.dataset.t;render()})}
+  const hb=document.getElementById("home");if(hb)hb.onclick=()=>{homeOpen=true;render()};
+  if(homeOpen){app.insertAdjacentHTML("beforeend",'<div class="ov"><div class="pn"><h2>Your camp</h2>'+(campList().length?campSvg()+'<div class="tbox campl">'+campList().map(r=>'<div class="it"><b>'+r[0]+'</b><p>'+r[1]+'</p></div>').join("")+'</div>':'<p class="empty">Nothing built or crafted yet. Shelters, fences and camp tools will appear here as you make them.</p>')+'<button class="reset" id="hx">Close</button></div></div>');document.getElementById("hx").onclick=()=>{homeOpen=false;render()}}
+  if(craftOpen&&!(A.crafts&&A.crafts.some(c=>c.ok)))craftOpen=false;
+  if(craftOpen){const rows=A.crafts.map((c,i)=>[c,i]).sort((a,b)=>b[0].ok-a[0].ok).map(([c,i])=>'<div class="it'+(c.ok?'':' na')+'"><b>'+c.l+(c.ok?'':'<span class="tag">Unavailable</span>')+'</b><p>'+c.desc+'</p><p>'+c.t+' · needs '+needStr(c.c)+(c.tired?' · too tired':'')+'</p>'+(c.ok?'<button class="cbtn" data-ci="'+i+'">Craft</button>':'')+'</div>').join("");
+    app.insertAdjacentHTML("beforeend",'<div class="ov"><div class="pn"><h2>Craft</h2>'+rows+'<button class="reset" id="cx">Close</button></div></div>');
+    document.getElementById("cx").onclick=()=>{craftOpen=false;render()};
+    app.querySelectorAll(".cbtn").forEach(b=>b.onclick=()=>{A.crafts[+b.dataset.ci].run();craftOpen=false;finish()})}
+  const ovl=app.querySelector(".ov:not(.shov)");if(ovl)ovl.onclick=e=>{if(e.target===ovl){invOpen=false;craftOpen=false;homeOpen=false;render()}};
+  const keep=()=>app.querySelector("details").open;
+  app.querySelectorAll(".actions button,.subs button,.qb,.grow button,.mbox button").forEach(b=>b.onclick=()=>{const o=keep();confirmReset=false;const a=A[+b.dataset.i];a.f();if(a.ui)render();else if(!ev)finish();const dd=document.querySelector("details");if(dd&&o)dd.open=true});
+  app.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{const o=keep();if(b.dataset.i!==undefined){A[+b.dataset.i].f();render()}else{openCat=openCat===b.dataset.cat?null:b.dataset.cat;render()}const dd=document.querySelector("details");if(dd&&o)dd.open=true});
+  document.getElementById("reset").onclick=()=>{if(confirmReset){confirmReset=false;reset()}else{confirmReset=true;render();document.querySelector("details").open=true}};
+}
+(()=>{const i=document.getElementById("intro");if(!i)return;let done=false;const go=()=>{if(done)return;done=true;i.classList.add("out");setTimeout(()=>i.remove(),800);document.removeEventListener("keydown",go)};i.addEventListener("click",go);document.addEventListener("keydown",go)})();
+render();
+</script>
+</body>
+</html>
